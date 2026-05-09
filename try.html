@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI短剧行业观众洞察报告</title>
+
+    <!-- 引入 ECharts CDN → 【新增：必须放在头部才能正常渲染图表】 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+
+    /* =========================================================
+    主区域
+    ========================================================= */
+    .hero {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: transparent;
+        z-index: 1;
+    }
+
+    /* 新增：负面评价分析的容器布局 */
+    .neg-chart-container {
+        display: flex;
+        align-items: center;
+        background: rgba(10, 10, 26, 0.5);
+        border-radius: 16px;
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .neg-text-box {
+        flex: 1; /* 占据剩余空间 */
+        color: #d1d5db;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        text-align: left;
+        padding-right: 20px;
+        border-left: 1px dashed rgba(255, 51, 102, 0.3);
+        padding-left: 25px;
+    }
+
+    /* 移动端适配：改为上下排列 */
+    @media (max-width: 900px) {
+        .neg-chart-container {
+            flex-direction: column;
+        }
+        .neg-text-box {
+            border-left: none;
+            border-top: 1px dashed rgba(255, 51, 102, 0.3);
+            padding-left: 0;
+            padding-top: 20px;
+        }
+    }
+
+    /* =========================================================
+    背景图（新增，但不破坏你原结构）
+    ========================================================= */
+    .bg-image {
+        position: fixed;
+        inset: 0;
+        background: url("https://img.cdn1.vip/i/69fed09e7d296_1778307230.webp") center center/cover no-repeat;
+        z-index: -1;
+
+        filter:
+            brightness(0.7)
+            contrast(1.1)
+            saturate(1.1);
+
+        transform: scale(1.03);
+
+        animation:
+            bgBreath 10s ease-in-out infinite alternate;
+    }
+
+    /* 背景呼吸感 */
+    @keyframes bgBreath {
+        0% {
+            transform: scale(1.03);
+            filter:
+                brightness(0.68)
+                contrast(1.08)
+                saturate(1);
+        }
+
+        100% {
+            transform: scale(1.08);
+            filter:
+                brightness(0.78)
+                contrast(1.15)
+                saturate(1.2);
+        }
+    }
+
+    /* =========================================================
+    新增：数字网格
+    ========================================================= */
+    .cyber-grid {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+
+        background-image:
+            linear-gradient(rgba(0,242,254,0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,242,254,0.05) 1px, transparent 1px);
+
+        background-size: 60px 60px;
+
+        opacity: 0.25;
+
+        animation: gridPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+        0%,100% {
+            opacity: 0.12;
+        }
+
+        50% {
+            opacity: 0.3;
+        }
+    }
+
+    /* =========================================================
+    新增：扫描光
+    ========================================================= */
+    .scan-light {
+        position: absolute;
+        top: -30%;
+        left: -20%;
+        width: 140%;
+        height: 140%;
+        z-index: 2;
+
+        background:
+            linear-gradient(
+                120deg,
+                transparent 0%,
+                rgba(0,242,254,0.02) 25%,
+                rgba(0,242,254,0.1) 50%,
+                rgba(138,43,226,0.08) 60%,
+                transparent 100%
+            );
+
+        mix-blend-mode: screen;
+
+        animation: scanMove 9s linear infinite;
+    }
+
+    @keyframes scanMove {
+        from {
+            transform: translateX(-15%) rotate(0deg);
+        }
+
+        to {
+            transform: translateX(15%) rotate(1deg);
+        }
+    }
+
+    /* =========================================================
+    新增：电子噪点层
+    ========================================================= */
+    .glitch-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+
+        background:
+            repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.02) 0px,
+                rgba(255,255,255,0.02) 1px,
+                transparent 2px,
+                transparent 4px
+            );
+
+        opacity: 0.12;
+
+        mix-blend-mode: screen;
+
+        animation: glitchFlicker 0.12s infinite;
+    }
+
+    @keyframes glitchFlicker {
+        0% { opacity: 0.08; }
+        50% { opacity: 0.15; }
+        100% { opacity: 0.1; }
+    }
+
+    /* =========================================================
+    新增：数字流
+    ========================================================= */
+    .data-flow {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .data-line {
+        position: absolute;
+        width: 2px;
+
+        background:
+            linear-gradient(
+                to bottom,
+                transparent,
+                rgba(0,242,254,0.9),
+                transparent
+            );
+
+        opacity: 0.45;
+
+        filter: blur(0.5px);
+
+        animation: dataDrop linear infinite;
+    }
+
+    @keyframes dataDrop {
+        from {
+            transform: translateY(-200px);
+        }
+
+        to {
+            transform: translateY(120vh);
+        }
+    }
+
+    /* =========================================================
+    新增：AI眼睛增强发光
+    ========================================================= */
+    .eye-glow {
+        position: absolute;
+
+        right: 20%;
+        top: 30%;
+
+        width: 180px;
+        height: 180px;
+
+        z-index: 2;
+
+        border-radius: 50%;
+
+        background:
+            radial-gradient(
+                circle,
+                rgba(130,0,255,0.6) 0%,
+                rgba(0,242,254,0.22) 35%,
+                rgba(0,242,254,0.06) 55%,
+                transparent 70%
+            );
+
+        filter: blur(18px);
+
+        mix-blend-mode: screen;
+
+        animation: eyePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes eyePulse {
+        0%,100% {
+            opacity: 0.45;
+            transform: scale(0.92);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.08);
+        }
+    }
+
+    /* =========================================================
+    气泡（你的效果完全保留）
+    ========================================================= */
+    .ai-bubble{
+        position:absolute;
+
+        padding:16px 24px;
+
+        color:#bffcff;
+
+        font-size:13px;
+
+        border-radius:14px;
+
+        border:1px solid rgba(0,242,254,0.2);
+
+        background:
+            radial-gradient(
+                circle at top left,
+                rgba(255,255,255,0.08),
+                rgba(0,242,254,0.06),
+                rgba(138,43,226,0.08)
+            );
+
+        backdrop-filter: blur(18px);
+
+        box-shadow:
+            0 0 25px rgba(0,242,254,0.18),
+            inset 0 0 40px rgba(255,255,255,0.03);
+
+        overflow:hidden;
+
+        z-index:2000;
+
+        animation:
+            holoFloat 8s ease-in-out forwards;
+    }
+
+    /* 故障闪烁 */
+    .ai-bubble::before{
+        content:'';
+
+        position:absolute;
+        inset:0;
+
+        background:
+            repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.03),
+                rgba(255,255,255,0.03) 1px,
+                transparent 2px,
+                transparent 4px
+            );
+
+        mix-blend-mode:screen;
+
+        animation: holoNoise 0.12s infinite;
+    }
+
+    /* 外发光 */
+    .ai-bubble::after{
+        content:'';
+
+        position:absolute;
+
+        inset:-2px;
+
+        border-radius:14px;
+
+        border:1px solid rgba(0,242,254,0.18);
+
+        filter:blur(4px);
+    }
+
+    @keyframes holoNoise{
+        0%{
+            opacity:0.05;
+        }
+
+        50%{
+            opacity:0.15;
+        }
+
+        100%{
+            opacity:0.08;
+        }
+    }
+
+    @keyframes holoFloat{
+
+        0%{
+            opacity:0;
+            transform:
+                scale(0.8)
+                rotateX(30deg)
+                translateY(40px);
+        }
+
+        15%{
+            opacity:1;
+            transform:
+                scale(1)
+                rotateX(0deg)
+                translateY(0);
+        }
+
+        80%{
+            opacity:1;
+        }
+
+        100%{
+            opacity:0;
+            transform:
+                scale(0.95)
+                translateY(-20px);
+        }
+    }
+
+    /* =========================================================
+    聚光灯（你的效果完全保留）
+    ========================================================= */
+    .spotlight {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+
+        width: 200vw;
+        height: 200vh;
+
+        background:
+            radial-gradient(
+                circle 120px at center,
+                transparent 0%,
+                rgba(0,0,0,0.95) 100%
+            );
+
+        z-index: 10;
+
+        pointer-events: none;
+
+        animation: spotlight-play 6s ease-in-out forwards;
+    }
+
+    @keyframes spotlight-play {
+        0%   { transform: translate(-50px, 5%) scale(1.2); }
+        40%  { transform: translate(-75px, -75px) scale(0.6); }
+        60%  { transform: translate(5%, -85px) scale(1); }
+        85%  { transform: translate(0, 0) scale(2); }
+        100% { transform: translate(0, 0) scale(20); }
+        
+    }
+
+    /* =========================================================
+    标题（你的效果完全保留）
+    ========================================================= */
+    .title-container {
+        position: relative;
+        z-index: 3;
+        text-align: center;
+        width: 95%;
+    }
+
+    .title-line1 {
+        display: block;
+        font-size: 75px;
+        font-weight: 900;
+        margin-bottom: 30px;
+        color: #fff;
+        letter-spacing: 5px;
+
+        text-shadow:
+            0 0 20px rgba(0,242,254,0.8),
+            0 0 40px rgba(0,242,254,0.3);
+
+        animation: titleFloat 4s ease-in-out infinite;
+    }
+
+    .title-line2 {
+        display: block;
+        font-size: 90px;
+        font-weight: 900;
+        color: #fff;
+
+        animation: titleFloat2 5s ease-in-out infinite;
+    }
+
+    .highlight {
+        font-size: 110px;
+        font-style: italic;
+
+        background:
+            linear-gradient(
+                90deg,
+                #fff,
+                #00f2fe,
+                #4facfe,
+                #8a2be2,
+                #fff
+            );
+
+        background-size: 200% auto;
+
+        -webkit-background-clip: text;
+        background-clip: text;
+
+        color: transparent;
+
+        animation: textShine 3s linear infinite;
+    }
+
+    @keyframes textShine {
+        to {
+            background-position: 200% center;
+        }
+    }
+
+    /* 标题轻微漂浮 */
+    @keyframes titleFloat {
+        0%,100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+
+    @keyframes titleFloat2 {
+        0%,100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(5px);
+        }
+    }
+
+    /* =========================================================
+    暗角
+    ========================================================= */
+    .vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+
+        background:
+            radial-gradient(
+                circle,
+                transparent 40%,
+                rgba(0,0,0,0.5) 100%
+            );
+    }
+
+    /* =========================================================
+    响应式
+    ========================================================= */
+    @media (max-width: 1366px) {
+
+        .title-line1 {
+            font-size: 55px;
+        }
+
+        .title-line2 {
+            font-size: 65px;
+        }
+
+        .highlight {
+            font-size: 80px;
+        }
+
+        .eye-glow {
+            width: 120px;
+            height: 120px;
+        }
+    }
+
+        /* -------------------- 正文全局样式（已统一为黑色科技风） -------------------- */
+        /* 【改动 1】删除了原有的浅色背景，完全使用正文的黑色科技风 */
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* 滚动动画：淡入上滑（统一正文动画类名） */
+        /* 【改动 2】统一所有动画类名为 .hidden / .show，避免冲突 */
+        .hidden {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 侧边导航栏（保留，适配黑色背景） */
+        /* 【改动 3】导航栏背景改为深色半透明，适配正文风格 */
+        .nav-sidebar {
+            position: fixed;
+            top: 50%;
+            left: 25px;
+            transform: translateY(-50%);
+            z-index: 100;
+
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s ease;
+
+            width: 50px;
+            background: rgba(20,20,30,0.95); /* 改为深色背景 */
+            padding: 15px 5px;
+            border-radius: 25px;
+            box-shadow: 0 4px 20px rgba(33,150,243,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .nav-sidebar.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .nav-sidebar a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin: 10px auto;
+            border-radius: 50%;
+            background: #1a1a2e;
+            color: #2196f3;
+            text-decoration: none;
+            font-size: 18px;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .nav-sidebar a:hover,
+        .nav-sidebar a.active {
+            background: #2196f3;
+            color: #fff;
+        }
+        .nav-sidebar a::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 55px;
+            background: #2196f3;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .nav-sidebar a:hover::after {
+            opacity: 1;
+        }
+
+        /* -------------------- 以下是完整正文样式（无任何改动，直接保留） -------------------- */
+        /* 分屏区块样式 */
+        section {
+            min-height: 100vh;
+            padding: 100px 10%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 第一屏：引子 */
+        .sec-intro { text-align: center; }
+        .sec-intro h1 {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ai-steps {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 4px solid #4facfe;
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+            color: #b0b8c1;
+        }
+        .ai-steps span { color: #fff; font-weight: bold; }
+
+        /* 第二屏：对比 */
+        .sec-contrast { text-align: center; }
+        .sec-contrast p { font-size: 1.5rem; max-width: 900px; margin: 0 auto; color: #a1a1aa; }
+        .highlight-text {
+            color: #00ffcc;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            display: block;
+            margin: 30px 0;
+        }
+
+        /* 第三屏：左右图文排版 */
+        .sec-showcase {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .showcase-text {
+            width: 45%;
+            font-size: 1.3rem;
+        }
+        .showcase-text p { margin-bottom: 20px; }
+        
+        .showcase-images {
+            width: 50%;
+            position: relative;
+            height: 400px;
+        }
+        .img-card {
+            position: absolute;
+            width: 80%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transition: all 0.8s ease-out;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .img-1 {
+            top: 0; left: 0; z-index: 2;
+            transform: translateX(100px) rotate(5deg);
+            opacity: 0;
+        }
+        .img-2 {
+            bottom: -50px; right: -20px; z-index: 1;
+            transform: translateX(100px) rotate(-5deg);
+            opacity: 0;
+        }
+        .showcase-images.show .img-1 {
+            transform: translateX(0) rotate(-3deg); opacity: 1;
+        }
+        .showcase-images.show .img-2 {
+            transform: translateX(0) rotate(4deg); opacity: 1;
+            transition-delay: 0.4s;
+        }
+
+        /* 第四屏：悬念与转折 */
+        .sec-conflict {
+            background: radial-gradient(circle at center, rgb(42, 11, 11,0.8) 0%, rgb(5, 5, 16,0.8) 70%);
+            text-align: center;
+        }
+        .sec-conflict p {
+            font-size: 1.6rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #fca5a5;
+            text-shadow: 0 0 10px rgba(252, 165, 165, 0.3);
+        }
+
+        /* 第五屏：数据 */
+        .sec-data { text-align: center; }
+        .data-box {
+            border: 1px dashed #4b5563;
+            padding: 50px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.02);
+        }
+        .sec-data p { font-size: 1.3rem; color: #d1d5db; }
+        .scroll-down {
+            margin-top: 50px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        /* 章节大标题 */
+        .section-title { font-size: 2.5rem; color: #fff; margin-bottom: 50px; text-align: center; letter-spacing: 2px; }
+        .section-title span { color: #4facfe; }
+
+        /* 第一屏：定义与数据卡片 */
+        .def-box { text-align: center; font-size: 1.2rem; color: #a1a1aa; max-width: 800px; margin: 0 auto 60px auto; }
+        .def-box strong { color: #00ffcc; font-weight: normal; }
+        
+        .data-grid { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .data-card { 
+            flex: 1; min-width: 250px; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 16px; padding: 40px 20px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s;
+        }
+        .data-card:hover { transform: translateY(-10px); border-color: #00f2fe; }
+        .data-num { font-size: 4rem; font-weight: bold; color: #00f2fe; text-shadow: 0 0 20px rgba(0, 242, 254, 0.5); display: block; line-height: 1; margin-bottom: 10px; }
+        .data-unit { font-size: 1.5rem; }
+        .data-desc { color: #8b949e; font-size: 1.1rem; margin-top: 10px; }
+
+        /* 第二屏：趋势图占位区 */
+        .sec-trend { background: linear-gradient(180deg,  rgb(10, 21, 37,0.8) 100%); }
+        .trend-text { text-align: center; font-size: 1.5rem; margin-bottom: 40px; }
+        .trend-text span { color: #ff3366; font-weight: bold; }
+        .chart-placeholder {
+            width: 100%; height: 400px; border: 2px dashed #334155; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+        }
+        .chart-tips { position: absolute; z-index: 10; color: #64748b; font-size: 1.2rem; }
+        .svg-line { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+        .path-line {
+            fill: none; stroke: #ff3366; stroke-width: 4;
+            stroke-dasharray: 2000; stroke-dashoffset: 2000;
+            filter: drop-shadow(0 0 10px rgba(255,51,102,0.8));
+        }
+        .show .path-line { animation: drawLine 3s ease-out forwards; }
+
+        /* 图表容器样式 */
+        #chart1 {
+            width: 100%;
+            height: 500px;
+            margin: 40px 0;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+        }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+        /* 第三屏：题材词云 */
+        .sec-genre { text-align: center; }
+        #wordCloudChart {
+            width: 100%;
+            height: 400px;
+            margin: 40px auto;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .genre-desc { font-size: 1.2rem; color: #a1a1aa; max-width: 800px; margin: 0 auto; line-height: 2; }
+
+        /* 第四屏：总结三柱石 */
+        .sec-summary { background: rgb(5, 5, 16,0.0); }
+        .summary-intro { text-align: center; font-size: 1.4rem; margin-bottom: 50px; color: #fff; }
+        .summary-grid { display: flex; gap: 30px; }
+        .sum-card {
+            flex: 1; background: #0d0d1a; padding: 30px; border-top: 4px solid #333; border-radius: 8px;
+            transition: all 0.4s;
+        }
+        .sum-card:hover { background: #131326; border-top-color: #00ffcc; box-shadow: 0 10px 30px rgba(0,255,204,0.1); }
+        .sum-card h3 { color: #fff; font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .sum-card p { color: #8b949e; font-size: 1.05rem; }
+        .sum-card .highlight { 
+            /* color: #00ffcc; font-weight: bold;  */
+            color: #00ffcc !important;
+            font-weight: bold !important;
+            font-size: 16px !important;
+            background: none !important;
+            -webkit-background-clip: unset !important;
+            -webkit-text-fill-color: unset !important;
+        }
+
+        /* --- 第一屏：冰火碰撞 --- */
+        .sec-collide { text-align: center; }
+        .ice-fire-title { font-size: 4rem; font-weight: bold; margin-bottom: 30px; 
+            background: linear-gradient(90deg, #00f2fe 30%, #ff3366 70%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .collide-words { display: flex; justify-content: center; gap: 50px; font-size: 2.5rem; font-weight: bold; overflow: hidden; margin-bottom: 40px;}
+        .word-ice { color: #00f2fe; text-shadow: 0 0 20px rgba(0,242,254,0.8); transform: translateX(-200px); opacity: 0; transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .word-fire { color: #ff3366; text-shadow: 0 0 20px rgba(255,51,102,0.8); transform: translateX(200px); opacity: 0; transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .show .word-ice { transform: translateX(0); opacity: 1; }
+        .show .word-fire { transform: translateX(0); opacity: 1; }
+        .collide-desc { color: #a1a1aa; font-size: 1.2rem; max-width: 800px; margin: 0 auto; }
+
+        /* --- 第二屏：情感主导进度条 --- */
+        .sec-dominate { text-align: center; background: radial-gradient(circle at center, #0a192f 0%, #050510 70%); }
+        .energy-bar-container { width: 100%; max-width: 900px; height: 60px; background: rgba(255,255,255,0.05); border-radius: 30px; margin: 50px auto; overflow: hidden; display: flex; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 1px solid #333;}
+        .bar-positive { height: 100%; background: linear-gradient(90deg, #00b4db, #0083b0); width: 0; transition: width 2s ease-in-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 20px; font-weight: bold; font-size: 1.2rem; color:#fff;}
+        .bar-negative { height: 100%; background: linear-gradient(90deg, #ff416c, #ff4b2b); width: 0; transition: width 2s ease-in-out; display: flex; align-items: center; padding-left: 10px; font-weight: bold; font-size: 1rem;}
+        .show .bar-positive { width: 95%; box-shadow: 0 0 20px rgba(0, 180, 219, 0.6); }
+        .show .bar-negative { width: 5%; }
+        .dominate-text { font-size: 1.3rem; color: #d1d5db; line-height: 2;}
+
+        /* 交互控制台全局样式 */
+        .dash-container { 
+            display: flex; gap: 30px; max-width: 1100px; margin: 40px auto 0; 
+            background: rgba(255,255,255,0.02); padding: 30px; border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .dash-controls { display: flex; flex-direction: column; gap: 15px; width: 280px; flex-shrink: 0;}
+        .dash-btn { 
+            background: #111; border: 1px solid #333; color: #a1a1aa; 
+            padding: 15px 20px; border-radius: 10px; font-size: 1.1rem; 
+            text-align: left; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; font-family: 'PingFang SC', sans-serif;
+        }
+        .btn-icon { margin-right: 15px; font-size: 1.3rem; }
+        .dash-btn:hover { background: #1a1a2e; color: #fff; border-color: #4facfe; }
+        .dash-btn.active { 
+            background: linear-gradient(90deg, rgba(0,242,254,0.2) 0%, transparent 100%);
+            border-left: 4px solid #00f2fe; color: #fff; font-weight: bold;
+            box-shadow: inset 10px 0 20px rgba(0,242,254,0.1);
+        }
+        .dash-display { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; }
+        .display-frame { 
+            width: 100%; height: 350px; background: #0a0a1a; 
+            border-radius: 12px; border: 1px dashed #4b5563; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(to bottom, transparent, rgba(0,242,254,0.5), transparent);
+            animation: scan 4s linear infinite; pointer-events: none; opacity: 0.5;
+        }
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
+
+        /* 图表提示文字 + 返回按钮样式 */
+        .chart-tip {
+            text-align:center; color:#a1a1aa; font-size:1rem; margin-bottom:15px;
+        }
+        .chart-back-btn {
+            position:absolute; right:20px; bottom:20px;
+            padding:8px 16px; background:linear-gradient(90deg,#00f2fe,#4facfe);
+            border:none; border-radius:8px; color:#000; font-weight:bold;
+            cursor:pointer; transition:all 0.3s;
+        }
+        .chart-back-btn:hover {
+            opacity:0.9; transform:scale(1.05);
+        }
+
+        /* --- 第三屏：正负面维度拆解 --- */
+        .sec-dimensions { display: flex; gap: 40px; }
+        .dim-column { flex: 1; background: rgba(255,255,255,0.02); padding: 40px; border-radius: 16px; border: 1px solid #222; }
+        .dim-column.pos { border-top: 4px solid #00f2fe; }
+        .dim-column.neg { border-top: 4px solid #ff3366; }
+        .dim-column h3 { font-size: 1.8rem; margin-bottom: 30px; text-align: center; }
+        .dim-column.pos h3 { color: #00f2fe; }
+        .dim-column.neg h3 { color: #ff3366; }
+        .tag-group { display: flex; flex-direction: column; gap: 20px; }
+        .detail-tag { background: #111; padding: 15px 20px; border-radius: 8px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;}
+        .detail-tag strong { display: block; font-size: 1.3rem; margin-bottom: 5px; color:#fff;}
+        .detail-tag span { font-size: 0.95rem; color: #888; transition: color 0.3s;}
+        .pos .detail-tag:hover { background: #002233; border-left: 4px solid #00f2fe; }
+        .pos .detail-tag:hover span { color: #00f2fe; }
+        .neg .detail-tag:hover { background: #330011; border-left: 4px solid #ff3366; }
+        .neg .detail-tag:hover span { color: #ffca28; }
+
+        /* --- 第四屏：桑基图与聚类分析 --- */
+        .sec-sankey { text-align: center; }
+        .sankey-placeholder { width: 100%; height: 350px; background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg"><path d="M 100 150 C 400 150, 600 50, 900 50" fill="none" stroke="%2300f2fe" stroke-width="4" stroke-opacity="0.5"/><path d="M 100 150 C 400 150, 600 150, 900 150" fill="none" stroke="%23bd00ff" stroke-width="4" stroke-opacity="0.5"/><path d="M 100 150 C 400 150, 600 250, 900 250" fill="none" stroke="%2300ffcc" stroke-width="4" stroke-opacity="0.5"/></svg>') no-repeat center center; background-size: cover; margin: 40px 0; border: 1px dashed #4b5563; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative;}
+        .sankey-text { font-size: 1.2rem; color: #64748b; z-index: 2; background: rgba(5,5,16,0.8); padding: 10px 20px; border-radius: 8px;}
+        .platform-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 20px; }
+        .plat-card { background: #0a0a1a; padding: 20px; border-radius: 8px; font-size: 1rem; color: #a1a1aa; border-bottom: 2px solid transparent;}
+        .plat-card:nth-child(1) { border-bottom-color: #00f2fe; }
+        .plat-card:nth-child(2) { border-bottom-color: #bd00ff; }
+        .plat-card:nth-child(3) { border-bottom-color: #00ffcc; }
+        .plat-card:nth-child(4) { border-bottom-color: #ff3366; }
+        .plat-card strong { color: #fff; display: block; margin-bottom: 10px; font-size: 1.2rem;}
+
+        /* --- 第五屏：故障风结论 --- */
+        .sec-conclusion { background: rgb(0, 0, 0,0.4); text-align: center; }
+        .conc-box { max-width: 900px; margin: 0 auto; font-size: 1.3rem; line-height: 2.2; color: #d1d5db; }
+        .highlight-word { color: #fff; font-weight: bold; background: rgba(255,255,255,0.1); padding: 0 8px; border-radius: 4px; border-bottom: 2px solid #00ffcc;}
+        .pain-point { color: #ff3366; font-weight: bold; text-shadow: 0 0 10px rgba(255,51,102,0.5); }
+        
+        .glitch-question { font-size: 6rem; color: #fff; font-weight: bold; margin-top: 40px; position: relative; display: inline-block; }
+        .glitch-question::before, .glitch-question::after { content: '?'; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; }
+        .glitch-question::before { left: 2px; text-shadow: -2px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim 3s infinite linear alternate-reverse; }
+        .glitch-question::after { left: -2px; text-shadow: -2px 0 blue; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2.5s infinite linear alternate-reverse; }
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 31px, 0); }
+            20% { clip: rect(62px, 9999px, 13px, 0); }
+            40% { clip: rect(34px, 9999px, 83px, 0); }
+            60% { clip: rect(79px, 9999px, 52px, 0); }
+            80% { clip: rect(15px, 9999px, 98px, 0); }
+            100% { clip: rect(44px, 9999px, 21px, 0); }
+        }
+
+        /* --- 第一屏：灵魂拷问 --- */
+        .sec-questioning { background: radial-gradient(circle at top, rgb(26, 10, 10,0.5) 0%, rgb(5, 5, 16,0.5) 80%); }
+        .fade-out-title { font-size: 3rem; font-weight: bold; text-align: center; color: #888; transition: color 2s ease; margin-bottom: 60px; }
+        .show .fade-out-title { color: #333; }
+        .fade-out-title span { color: #fff; }
+        .question-list { max-width: 800px; margin: 0 auto; font-size: 1.4rem; }
+        .q-item { margin-bottom: 25px; padding-left: 20px; border-left: 3px solid transparent; transition: all 0.5s; }
+        .show .q-item:nth-child(1) { transition-delay: 0.5s; border-left-color: #ff4500; }
+        .show .q-item:nth-child(2) { transition-delay: 1.0s; border-left-color: #ff6a00; }
+        .show .q-item:nth-child(3) { transition-delay: 1.5s; border-left-color: #ff8c00; }
+        .show .q-item:nth-child(4) { transition-delay: 2.0s; border-left-color: #ffa500; }
+        .q-item strong { color: #fff; }
+        .q-item p { color: #a1a1aa; display: inline; }
+
+        /* --- 第二屏：负面病灶解剖树状图 --- */
+        .sec-treemap { text-align: center; }
+        .treemap-intro { font-size: 1.2rem; color: #d1d5db; margin-bottom: 40px; max-width: 700px; margin: 0 auto 40px auto; }
+        
+        .treemap-container { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr 1fr; 
+            grid-template-rows: 200px 150px; 
+            gap: 15px; 
+            max-width: 700px; 
+            margin: 0 auto;
+        }
+        
+        .tm-box { 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 12px; 
+            padding: 20px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+            position: relative; overflow: hidden; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .tm-box:hover { transform: scale(1.02); z-index: 10; box-shadow: 0 15px 30px rgba(0,0,0,0.6); }
+        .tm-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 10px; z-index: 2; }
+        .tm-desc { font-size: 1rem; color: rgba(255,255,255,0.8); z-index: 2; opacity: 0.8; }
+        .tm-percent { position: absolute; right: 20px; top: 20px; font-size: 2.5rem; font-weight: 900; opacity: 0.2; z-index: 1; }
+
+        .box-content { grid-column: 1 / 2; grid-row: 1 / 3; background: linear-gradient(135deg, #8b0000, #ff3366); border-color: #ff3366; }
+        .box-other { grid-column: 2 / 4; grid-row: 1 / 2; background: #2a2a35; }
+        .box-ai { grid-column: 2 / 3; grid-row: 2 / 3; background: linear-gradient(135deg, #4b0082, #9932cc); border-color: #9932cc; }
+        .box-minor { grid-column: 3 / 4; grid-row: 2 / 3; background: #1e3a8a; }
+
+        /* --- 第三屏：认知反转 --- */
+        .sec-reversal { height: 60vh; background: rgb(0, 0, 0,0.2); display: flex; align-items: center; justify-content: center; text-align: center; }
+        .reversal-text { font-size: 2rem; line-height: 1.5; color: #fff; max-width: 800px; position: relative; }
+        .reversal-text span { color: #ff4500; font-weight: bold; text-decoration: line-through 3px rgba(255,255,255,0.5); display: inline-block; position: relative;}
+        .reversal-sub { font-size: 1.3rem; color: #a1a1aa; margin-top: 30px; }
+
+        /* --- 第四屏：对策控制台 --- */
+        .sec-solution { background: rgb(50, 50, 52,0.6); }
+        .sol-header { text-align: center; margin-bottom: 50px; font-size: 1.8rem; color: #00ffcc; letter-spacing: 2px;}
+        .sol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; }
+        .sol-card { 
+            background: #0d0d1a; padding: 40px 30px; border-radius: 8px;
+            position: relative; overflow: hidden;
+            border-left: 1px solid #333; border-right: 1px solid #333;
+        }
+        .sol-card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, #00ffcc, transparent);
+            animation: scanline 3s linear infinite;
+        }
+        @keyframes scanline { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+        
+        .sol-card h3 { font-size: 1.4rem; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .sol-card p { font-size: 1.05rem; color: #94a3b8; line-height: 1.8; }
+        .sol-icon { width: 40px; height: 40px; background: rgba(0,255,204,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+        /* --- 第一屏：丈量的尺子 --- */
+        .sec-ruler { text-align: center; }
+        .ruler-container { width: 100%; max-width: 800px; height: 40px; margin: 40px auto; position: relative; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid rgba(255,255,255,0.2); overflow: hidden;}
+        .ruler-container::before {
+            content: ''; position: absolute; bottom: 0; left: 50%; width: 0%; height: 100%;
+            background: repeating-linear-gradient(90deg, transparent, transparent 19px, #fff 19px, #fff 20px);
+            transition: width 2s cubic-bezier(0.19, 1, 0.22, 1); transform: translateX(-50%); opacity: 0.3;
+        }
+        .show .ruler-container::before { width: 100%; }
+        .ruler-text { font-size: 1.5rem; max-width: 800px; margin: 0 auto; color: #a1a1aa; }
+        .ruler-text strong { color: #fff; font-size: 1.8rem; }
+
+        /* --- 第二屏：VS 阵营对决 --- */
+        .sec-vs { padding: 50px 5%; }
+        .vs-wrapper { display: flex; width: 100%; height: 450px; border-radius: 20px; overflow: hidden; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid #333;}
+        
+        .vs-side { flex: 1; padding: 50px; display: flex; flex-direction: column; justify-content: center; transition: all 0.5s; position: relative;}
+        .vs-ai { background: linear-gradient(135deg, #0a192f 0%, #003366 100%); text-align: right; padding-right: 80px;}
+        .vs-ai::before { content: 'AI生成'; position: absolute; font-size: 6rem; opacity: 0.05; top: 10%; right: 20%; font-weight: 900; pointer-events: none;}
+        .vs-ai h3 { color: #00f2fe; font-size: 2rem; margin-bottom: 10px; }
+        
+        .vs-human { background: linear-gradient(135deg, #331100 0%, #cc5500 100%); text-align: left; padding-left: 80px;}
+        .vs-human::before { content: '真人演绎'; position: absolute; font-size: 6rem; opacity: 0.05; top: 10%; left: 20%; font-weight: 900; pointer-events: none;}
+        .vs-human h3 { color: #ffaa00; font-size: 2rem; margin-bottom: 10px; }
+        
+        .vs-data { font-size: 3rem; font-weight: bold; font-family: 'Courier New', Courier, monospace; margin: 20px 0;}
+        .vs-desc { color: #d1d5db; font-size: 1.1rem; }
+        
+        .vs-badge { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100px; height: 100px; background: #111; border: 4px solid #fff; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; font-style: italic; z-index: 10;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2); animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.7); } 70% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 0 20px rgba(255,255,255,0); } 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+        
+        .vs-side:hover { flex: 1.2; }
+
+        /* --- 第三屏：雷达图 --- */
+        .sec-chart { background: rgb(11, 11, 106,0.3); }
+        .chart-title { text-align: center; margin-bottom: 50px; font-size: 1.6rem; color: #a1a1aa; }
+        #radarChart {
+            width: 100%;
+            height: 500px;
+            background: rgb(10, 10, 26,0.3);
+            border-radius: 16px;
+        }
+        .chart-note { text-align: center; margin-top: 30px; color: #ff3366; font-size: 1rem; border: 1px dashed #ff3366; padding: 15px; border-radius: 8px; max-width: 600px; margin-left: auto; margin-right: auto;}
+
+        /* --- 第四屏：金句洞察与原罪 --- */
+        .sec-insight { padding-bottom: 50px; }
+        .insight-grid { display: flex; gap: 40px; margin-bottom: 60px; }
+        .insight-card { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid #222; padding: 40px; border-radius: 16px; position: relative;}
+        .insight-card::before { content: "“"; position: absolute; top: -20px; left: 20px; font-size: 6rem; color: rgba(255,255,255,0.1); font-family: serif; }
+        .insight-card p { font-size: 1.3rem; line-height: 1.8; color: #d1d5db; }
+        .insight-card strong { font-size: 1.5rem; display: block; margin-top: 15px; }
+
+        .sin-text { text-align: center; font-size: 1.6rem; max-width: 900px; margin: 0 auto; }
+        .sin-word { color: #ff0000; font-weight: 900; font-size: 2.2rem; text-shadow: 2px 0 0 #00f2fe, -2px 0 0 #ff3366; animation: glitch-text 2s infinite linear alternate-reverse; letter-spacing: 2px;}
+
+        /* --- 第五屏：未来破局 --- */
+        .sec-future { text-align: center; background: radial-gradient(circle at center, rgb(0, 26, 26,0.6) 0%, rgb(5, 5, 16,0.6) 70%); min-height: 60vh;}
+        .future-box { max-width: 800px; margin: 0 auto; font-size: 1.4rem; color: #a1a1aa; line-height: 2; }
+        .fade-tech { display: inline-block; color: #00f2fe; transition: all 2s; opacity: 1; filter: blur(0px); }
+        .show .fade-tech { opacity: 0.6; filter: blur(0px); }
+        .focus-content { display: inline-block; color: #fff; font-weight: bold; font-size: 1.6rem; transition: all 2s; text-shadow: 0 0 0 rgba(255,255,255,0); }
+        .show .focus-content { color: #00ffcc; text-shadow: 0 0 20px rgba(0,255,204,0.8); transform: scale(1.1); }
+
+        /* --- 第一屏：全景回顾 --- */
+        .sec-epilogue { background: radial-gradient(circle at center, rgb(17, 17, 17,0.6) 0%, rgb(5, 5, 16,0.6) 100%); text-align: center; }
+        .epi-intro { font-size: 1.3rem; color: #a1a1aa; max-width: 800px; margin: 0 auto; line-height: 2.2; }
+        .epi-intro strong { color: #fff; font-size: 1.5rem; }
+
+        /* --- 第二屏：失衡的天平 --- */
+        .sec-imbalance { display: flex; flex-direction: column; align-items: center; }
+        .imb-text { font-size: 1.2rem; color: #d1d5db; max-width: 800px; text-align: center; margin-bottom: 60px; line-height: 2; }
+        .imb-text span { color: #ff3366; font-weight: bold; }
+        
+        .balance-container { width: 400px; height: 200px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+        .fulcrum { width: 0; height: 0; border-left: 30px solid transparent; border-right: 30px solid transparent; border-bottom: 50px solid #4facfe; z-index: 2; }
+        .beam { width: 100%; height: 6px; background: #fff; position: absolute; bottom: 50px; border-radius: 3px; transform-origin: center; transition: transform 2s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1;}
+        .tray-left, .tray-right { position: absolute; top: 10px; font-size: 3rem; display: flex; flex-direction: column; align-items: center; transition: transform 2s; }
+        .tray-left { left: 10px; }
+        .tray-right { right: 10px; }
+        .tray-label { font-size: 1rem; color: #888; margin-top: 10px; font-weight: bold; }
+        
+        .show .beam { transform: rotate(-15deg); box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .show .tray-left { transform: translateY(45px); }
+        .show .tray-right { transform: translateY(-45px); }
+
+        /* --- 第三屏：价值升华 --- */
+        .sec-sublime { text-align: center; background: rgb(74, 71, 71,0.5); }
+        .sublime-box { max-width: 900px; margin: 0 auto; }
+        .core-shift { font-size: 2.5rem; margin: 40px 0; font-weight: bold; }
+        .core-shift span { display: inline-block; }
+        .word-ai { color: #4facfe; }
+        .word-good { color: #facc15; text-shadow: 0 0 30px rgba(250, 204, 21, 0.8); transform: scale(1.5); margin: 0 10px; opacity: 0; transition: all 1.5s ease-out;}
+        .show .word-good { opacity: 1; transform: scale(1); }
+        
+        .sublime-desc { font-size: 1.3rem; color: #a1a1aa; line-height: 2.2; }
+        .highlight-phrase { color: #00ffcc; font-weight: bold; border-bottom: 2px dashed #00ffcc; padding-bottom: 2px; }
+
+        /* --- 第四屏：一秒钟的抉择 --- */
+        .sec-choice { text-align: center; position: relative; overflow: hidden; min-height: 80vh;}
+        .choice-text { font-size: 1.6rem; color: #fff; z-index: 10; position: relative; margin-top: 100px; text-shadow: 0 5px 15px #000; }
+        
+        .phone-frame {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, 0);
+            width: 280px; height: 500px; border: 4px solid #334155; border-radius: 40px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
+            box-shadow: 0 0 50px rgba(79, 172, 254, 0.2);
+            display: flex; align-items: center; justify-content: center; font-size: 2rem; color: rgba(255,255,255,0.2);
+            transition: all 1s ease-in; z-index: 1; opacity: 0;
+        }
+        .phone-frame::before { content:'↑ 划走'; font-size: 1.2rem; position: absolute; top: 40px; animation: bounceUp 1.5s infinite; }
+        @keyframes bounceUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        
+        .sec-choice.show-phone .phone-frame { opacity: 1; transform: translate(-50%, -120vh); transition: transform 1.5s cubic-bezier(0.55, 0.085, 0.68, 0.53); }
+
+        /* --- 第五屏：终极灵魂拷问 --- */
+        .sec-final { background: rgb(0, 0, 0,0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .final-intro { font-size: 1.2rem; color: #64748b; margin-bottom: 40px; letter-spacing: 2px; }
+        .final-question { font-size: 3rem; font-weight: bold; line-height: 1.5; color: #fff; max-width: 900px;}
+        
+        .heart-beat-word {
+            color: #ff3366; text-shadow: 0 0 20px rgba(255,51,102,0.6);
+            display: inline-block; animation: heartbeat 2s infinite ease-in-out;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); text-shadow: 0 0 20px rgba(255,51,102,0.6); }
+            15% { transform: scale(1.1); text-shadow: 0 0 40px rgba(255,51,102,1); }
+            30% { transform: scale(1); text-shadow: 0 0 20px rgba(255,51,102,0.6); }
+            45% { transform: scale(1.1); text-shadow: 0 0 40px rgba(255,51,102,1); }
+            60% { transform: scale(1); text-shadow: 0 0 20px rgba(255,51,102,0.6); }
+            100% { transform: scale(1); text-shadow: 0 0 20px rgba(255,51,102,0.6); }
+        }
+        
+        .end-mark { margin-top: 100px; width: 10px; height: 10px; background: #333; border-radius: 50%; display: inline-block; }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sec-showcase { flex-direction: column; }
+            .showcase-text, .showcase-images { width: 100%; }
+            .showcase-images { margin-top: 40px; height: 300px; }
+            .sec-intro h1 { font-size: 2rem; }
+        }
+        @media (max-width: 768px) {
+            .data-grid, .summary-grid { flex-direction: column; }
+            .tag-main-1 { font-size: 3rem; }
+        }
+        @media (max-width: 900px) {
+            .sec-dimensions { flex-direction: column; }
+            .platform-grid { grid-template-columns: repeat(2, 1fr); }
+            .collide-words { font-size: 1.8rem; gap: 20px;}
+            .dash-container { flex-direction: column; }
+            .dash-controls { width: 100%; flex-direction: row; flex-wrap: wrap; }
+            .dash-btn { flex: 1; min-width: 140px; font-size: 0.9rem; padding: 10px; }
+            .btn-icon { margin-right: 5px; }
+        }
+        @media (max-width: 600px) {
+            .platform-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 900px) {
+            .treemap-container { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; }
+            .box-content { grid-column: 1 / 3; grid-row: 1 / 2; min-height: 200px;}
+            .box-other { grid-column: 1 / 3; grid-row: 2 / 3; min-height: 120px;}
+            .box-ai { grid-column: 1 / 2; grid-row: 3 / 4; min-height: 150px;}
+            .box-minor { grid-column: 2 / 3; grid-row: 3 / 4; min-height: 150px;}
+            .sol-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .vs-wrapper { flex-direction: column; height: 600px; }
+            .vs-side { padding: 30px; text-align: center !important; }
+            .insight-grid { flex-direction: column; }
+            .bar-label { width: 100px; font-size: 0.9rem; }
+            .bar-fill-l, .bar-fill-r { font-size: 0.7rem; }
+        }
+        @media (max-width: 768px) {
+            .final-question { font-size: 2rem; }
+            .core-shift { font-size: 1.8rem; }
+            .balance-container { transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <!-- 顶部：标题封面（完整保留） -->
+    <div class="hero">
+
+        <!-- 新增扫描光 -->
+        <div class="scan-light"></div>
+
+        <!-- 新增网格 -->
+        <div class="cyber-grid"></div>
+
+        <!-- 新增数字流 -->
+        <div class="data-flow" id="dataFlow"></div>
+
+        <!-- 新增故障纹理 -->
+        <div class="glitch-overlay"></div>
+
+        <!-- 新增AI眼睛发光 -->
+        <div class="eye-glow"></div>
+
+        <!-- 暗角 -->
+        <div class="vignette"></div>
+
+        <!-- 你的气泡层 -->
+        <div id="bubbleBox"></div>
+
+        <!-- 你的聚光灯 -->
+        <div class="spotlight"></div>
+
+        <!-- 你的标题 -->
+        <div class="title-container">
+            <div class="title-line1">
+                当AI学会演戏
+            </div>
+
+            <div class="title-line2">
+                你<span class="highlight">「入戏」</span>了吗？
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 左侧悬浮导航栏（完整保留 + 已适配正文ID） -->
+    <!-- 【改动 4】导航链接 href 与正文 section 一一对应，确保跳转正常 -->
+    <div class="nav-sidebar">
+        <a href="#part1" data-text="导语">📝</a>
+        <a href="#part2" data-text="背景概况">📊</a>
+        <a href="#part3" data-text="观众态度">👥</a>
+        <a href="#part4" data-text="负面评价">⚠️</a>
+        <a href="#part5" data-text="AI VS 真人">⚔️</a>
+        <a href="#part6" data-text="结语">🔚</a>
+    </div>
+
+    <!-- ==================== 完整正文内容（已添加章节ID） ==================== -->
+    <!-- 【改动 5】给每个大章节添加 id="part1 / part2 ..."，让导航跳转生效 -->
+
+    <!-- 第一部分 导语 -->
+    <section id="part1" class="sec-intro">
+        <h1 class="hidden">你相信一个人可以一天做一部剧吗？</h1>
+        <div class="ai-steps hidden">
+            <p>“<span>第一步写剧情</span>，让AI根据要求写一个剧情大纲，仔细看一下内容设定。</p><br>
+            <p><span>第二步，让AI将剧情写成分镜脚本</span>，越详细越好，例如时长、画面、特效、运镜、台词等。</p><br>
+            <p><span>第三步，文字生图片</span>，让AI给出场景和人物提示词，复制关键词来到节目生产线，这样我们就会得到主角形象……”</p><br>
+            <p style="color:#4facfe; margin-top:15px;">这并非科幻小说的情节，而是当下AI短剧创作者的真实日常。</p>
+        </div>
+    </section>
+
+    <section class="sec-contrast">
+        <div class="hidden">
+            <p>随着人工智能技术的广泛应用，微短剧行业率先迎来颠覆性变革。</p>
+            <p style="margin-top:20px; font-size:1.2rem;">从灵感到成片，传统剧组需要编剧、导演、摄影、灯光、服化道等数十人数月的协作...</p>
+            <span class="highlight-text">在AI加持下，被压缩为一个人、一台电脑、若干提示词。</span>
+            <p style="font-size:1.2rem;">无需支付片酬，不必担心档期冲突，更不用忍受恶劣天气——创作者要做的，就是不断地“生成-筛选-微调”，然后批量上架。</p>
+        </div>
+    </section>
+
+    <section class="sec-showcase">
+        <div class="showcase-text hidden">
+            <h2 style="color:#00f2fe; margin-bottom:20px; font-size:2rem;">燎原之势</h2>
+            <p>从<strong>《霍去病》</strong>的家国情怀引发共鸣，到<strong>《雪山救狐狸》</strong>的魔性台词全网刷屏，AI短剧正以燎原之势重塑网络视听生态。</p>
+            <p>它从最初的技术试水，到凭借低成本、高效率的优势迅速席卷市场，如今已在各大短剧平台持续收获热度与流量。</p>
+        </div>
+        <div class="showcase-images hidden">
+            <img class="img-card img-1" src="https://i1.hdslb.com/bfs/archive/57ac185ee49183e3ceb1269b6296f60c7e0d8c2b.jpg@672w_378h_1c.avif" alt="霍去病短剧截图">
+            <img class="img-card img-2" src="https://sns-webpic-qc.xhscdn.com/202605091010/43faba7bb0add281b4366841422e0740/notes_pre_post/1040g3k031u2bloi4726g5q9ctt7cjb2jjibja80!nd_dft_wlteh_webp_3" alt="雪山救狐狸短剧截图">
+        </div>
+    </section>
+
+    <section class="sec-conflict">
+        <div class="hidden">
+            <p>然而，当技术的狂欢褪去，舞台中央真正的“裁判”——普通观众，究竟是否买账？</p>
+            <p style="margin-top:30px; font-size:1.4rem; color:#fff;">AI短剧和传统真人短剧相比，能让观众沉浸吗？<br>在这场由算法主导的视觉盛宴背后，观众的争议声又究竟集中在何处？</p>
+        </div>
+    </section>
+
+    <section class="sec-data">
+        <div class="data-box hidden">
+            <div style="font-size:3rem; margin-bottom:20px;">📊</div>
+            <p>为了拨开迷雾，我们爬取了红果短剧等垂直类平台、抖音等短视频平台、腾讯视频等综合平台，及微博、小红书等社交媒体，</p>
+            <p style="color:#00ffcc; font-size:1.5rem; margin-top:20px; font-weight:bold;">共计数万条数据</p>
+            <p style="margin-top:20px;">以此为基础分析观众对AI短剧的真实声音与态度，剖析行业问题。</p>
+            <div class="scroll-down">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第二部分 背景概况 -->
+    <section id="part2">
+        <h2 class="section-title hidden"><span>二、</span>背景概况</h2>
+        <div class="def-box hidden">
+            <p>AI短剧即运用AI技术（文生视频、建模、配音、剪辑等）参与核心创作环节，单集1-10分钟、竖屏为主的轻量化内容。<strong>2026年进入爆发期</strong>，已成为短剧产能绝对主力，市场热度与用户规模跨越式增长。</p>
+        </div>
+        <div class="data-grid hidden" id="dataGrid">
+            <div class="data-card">
+                <span class="data-num counter" data-target="240">0</span>
+                <span class="data-unit" style="color:#00f2fe">亿元</span>
+                <p class="data-desc">2026年AI短剧预计市场规模</p>
+            </div>
+            <div class="data-card" style="transition-delay: 0.2s;">
+                <span class="data-num counter" data-target="3">0.0</span>
+                <span class="data-unit" style="color:#00f2fe">亿</span>
+                <p class="data-desc">预计AI短剧用户规模</p>
+            </div>
+            <div class="data-card" style="transition-delay: 0.4s;">
+                <span class="data-num counter" data-target="95">0</span>
+                <span class="data-unit" style="color:#00f2fe">%</span>
+                <p class="data-desc">2026年Q1全行业上新占比<br>(12.8万部中达12.2万部)</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="sec-trend">
+        <div class="trend-text hidden">
+            <p>从近半年AI短剧月度上线数量来看，<br>播剧数持续快速增长，呈现 <span>“批量上线”的爆发态势</span>。</p>
+            <div id="chart1"></div>
+            <div class="scroll-down">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+            </div>
+        </div>
+    </section>
+
+    <section class="sec-genre">
+
+        <div class="genre-desc hidden">
+            <p>题材方面，AI短剧题材高度集中， <span style="color:#f90d0d;"><strong>都市、情感是绝对主流</strong></span>，辅以逆袭、爱情等强爽点叙事，而年代等题材占比偏低。</p>
+            <p style="margin-top:15px;">整体呈现出以成熟赛道为核心，小众创新题材尚未形成规模的供给格局，与真人短剧早期的爆款逻辑高度重合，也反映出AI短剧创作优先服务于<span style="color:#ff007f">低成本、快量产、高情绪价值</span>的市场导向。</p>    
+        </div>
+        <div id="wordCloudChart" class="hidden"></div>
+    </section>
+
+    <section class="sec-summary">
+        <p class="summary-intro hidden">总之，当前AI短剧行业正处于爆发式增长阶段，已从真人短剧的补充形态，<br>转变为市场供给的绝对主力。</p>
+        <div class="summary-grid hidden">
+            
+            <div class="sum-card">
+                <h3 style="color:#4facfe;">📦 供给端</h3>
+                <p>凭借成本、周期与门槛的优势，占行业上新量的绝大多数，形成了以<span class="highlight">都市情感、逆袭爽文</span>为主的高度集中题材结构。</p>
+            </div>
+            <div class="sum-card" style="transition-delay: 0.2s;">
+                <h3 style="color:#bd00ff;">👥 需求端</h3>
+                <p>头部爆款可撬动数亿级播放量，用户规模快速扩大，<span class="highlight">下沉市场</span>成为核心受众。</p>
+            </div>
+            <div class="sum-card" style="transition-delay: 0.4s;">
+                <h3 style="color:#00ffcc;">🎯 整体特征</h3>
+                <p>AI短剧已形成“<span class="highlight">低成本量产、强情绪驱动、头部效应显著</span>”的市场特征，正在重塑短剧行业的生产与流量逻辑。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第三部分 观众态度 -->
+    <section id="part3" class="sec-collide">
+        <h2 class="section-title hidden"><span>三、</span>观众态度画像</h2>
+        <div class="ice-fire-title hidden">冰火两重天？</div>
+        <div class="collide-words hidden">
+            <span class="word-ice">惊艳！</span>
+            <span style="color:#666">VS</span>
+            <span class="word-fire">“辣眼睛”</span>
+        </div>
+        <p class="collide-desc hidden" style="margin-top:30px;">
+            为研究观众对AI短剧如火如荼的发展究竟持何态度，我们对垂直平台、短视频平台、综合视频平台及社交媒体平台有关评论内容进行了情感分析。
+        </p>
+    </section>
+
+    <section class="sec-dominate">
+        <div class="hidden">
+            <h3 style="font-size:2rem; margin-bottom:20px;">整体态度：<span style="color:#00f2fe;">正面占据绝对主导</span></h3>
+            <p class="dominate-text">所有平台的正面情感表达都远超负面和中性情感，表明用户对AI短剧整体持积极态度。<br>具体来看，综合视频平台总情感表达量最高；且各平台负面情感表达<strong>均在21条以下</strong>，批评声音极少。</p>
+            <div class="dash-container hidden">
+                <div class="dash-controls">
+                    <button class="dash-btn active" data-platform="all">
+                        <span class="btn-icon">🌐</span> 整体情感大盘
+                    </button>
+                    <button class="dash-btn" data-platform="vertical">
+                        <span class="btn-icon">📱</span> 垂直平台分布
+                    </button>
+                    <button class="dash-btn" data-platform="short">
+                        <span class="btn-icon">🎵</span> 短视频平台
+                    </button>
+                    <button class="dash-btn" data-platform="video">
+                        <span class="btn-icon">📺</span> 综合视频平台
+                    </button>
+                    <button class="dash-btn" data-platform="social">
+                        <span class="btn-icon">💬</span> 社交媒体平台
+                    </button>
+                </div>
+                <div class="dash-display">
+                    <div class="chart-tip">点击右侧情绪区块，可查看四类平台详细占比数据</div>
+                    <div class="display-frame">
+                        <div id="platformPie" style="width:100%;height:100%;"></div>
+                        <div class="scanline"></div>
+                        <button class="chart-back-btn" id="backToAll">返回整体</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="sec-dimensions">
+            <div class="dim-column pos hidden">
+                <h3>(+) 正面情感解码</h3>
+                <div class="tag-group">
+                    <div class="detail-tag">
+                        <strong>❤️ 喜欢</strong>
+                        <span>所有平台最主要的正面情感，在<b>垂直平台占比最高</b>。</span>
+                    </div>
+                    <div class="detail-tag">
+                        <strong>🚀 技术进步</strong>
+                        <span><b>综合视频平台</b>和<b>社交媒体</b>对技术进步的关注远高于其他。</span>
+                    </div>
+                    <div class="detail-tag">
+                        <strong>✨ 画面好</strong>
+                        <span>各平台对画面质量的关注较为均衡，普遍获得认可。</span>
+                    </div>
+                </div>
+            </div>
+            <div class="dim-column neg hidden" style="transition-delay: 0.3s;">
+                <h3>(-) 负面雷区扫描</h3>
+                <div class="tag-group">
+                    <div class="detail-tag">
+                        <strong style="color:#ffcc00;">🤖 表情僵硬</strong>
+                        <span>最主要的负面反馈，在<b>综合视频平台</b>尤为突出，无法忽视的“恐怖谷”。</span>
+                    </div>
+                    <div class="detail-tag">
+                        <strong>💔 情感缺失</strong>
+                        <span>角色像没有灵魂的提线木偶，缺乏共情力。</span>
+                    </div>
+                    <div class="detail-tag">
+                        <strong>📉 质量差/剧情崩</strong>
+                        <span>部分粗制滥造的内容引发观众对叙事逻辑的吐槽。</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sec-sankey">
+        <h3 class="hidden" style="font-size:2rem; margin-bottom:20px;">聚类分析与平台分化</h3>
+        <p class="hidden" style="color:#a1a1aa; margin-bottom:20px;">结合聚类分析绘制桑基图，我们发现：平台特性深刻影响着观众的关注点。<br><span style="color:#fd5757;">（可拖动各色块进行自定义排布）</span></p>
+        <div id="sankey-chart" class="hidden" style="width:100%;height:500px;background:#0a192f;border-radius:16px;"></div>
+        <div class="platform-grid hidden">
+            <div class="plat-card">
+                <strong>📱 垂直平台</strong>
+                关注内容本身的喜爱度，负面反馈较少且最为分散。
+            </div>
+            <div class="plat-card" style="transition-delay: 0.2s;">
+                <strong>🎵 短视频平台</strong>
+                高度关注AI技术的创新迭代和具体的实现方式。
+            </div>
+            <div class="plat-card" style="transition-delay: 0.4s;">
+                <strong>💬 社交媒体</strong>
+                技术发展与内容体验并重，热衷于探讨和安利。
+            </div>
+            <div class="plat-card" style="transition-delay: 0.6s;">
+                <strong>📺 综合视频</strong>
+                情感表达最丰富，正面最多，但“负面反馈”也最多。
+            </div>
+        </div>
+        <p class="hidden" style="margin-top:30px; color:#888;">*后续不同平台AI短剧应针对不同用户属性有不同侧重点的发展。</p>
+    </section>
+
+    <section class="sec-conclusion">
+        <div class="conc-box hidden">
+            <p>基于上述分析，观众对AI短剧的态度并非“一边倒抵制”，而是呈现出<br>总体<span class="highlight-word">积极</span>、但<span class="highlight-word">审慎乐观</span>的姿态。</p>
+            <p style="margin-top:20px;">观众普遍愿意给这项新技术机会，甚至为其“脑洞”和“癫感”买单。<br>然而，这种喜欢也是<span style="color:#ffcc00; font-style:italic;">有条件的、脆弱的</span>。</p>
+            <p style="margin-top:20px;">
+                负面反馈暴露出AI在塑造 <span class="pain-point">“活人感”</span> 以及营造 <span class="pain-point">“沉浸感”</span> 上的根本性短板。大多数人的喜欢，可能更多源于<span class="highlight-word">新奇感与猎奇心理</span>，而非对叙事深度或表演质感的认可。
+            </p>
+            <p style="margin-top:40px; font-size:1.5rem; color:#fff;">
+                当新鲜感退潮，若核心痛点得不到实质性改善，观众的热情能否持续，<br>将是一个巨大的问号
+            </p>
+            <div class="glitch-question">?</div>
+        </div>
+    </section>
+
+    <!-- 第四部分 负面评价 -->
+    <section id="part4" class="sec-questioning">
+        <h2 class="section-title hidden"><span>四、</span>负面评价分析</h2>
+        <div class="hidden">
+            <h3 class="fade-out-title"><span>当</span>“喜欢”<span>褪去</span>，<span>留下的究竟是什么？</span></h3>
+        </div>
+        <div class="hidden" style="margin-bottom: 40px; text-align: center; color: #64748b; font-size: 1.1rem;">
+            如果停留在以上“总体积极”的结论上，我们可能会错失真正重要的问题：<br>那些给出差评的观众，到底在反对什么？
+        </div>
+        <div class="question-list hidden">
+            <div class="q-item hidden">
+                <p>是</p> <strong>技术能力的边界</strong>，<p>还是</p> <strong>叙事逻辑的崩塌</strong>？
+            </div>
+            <div class="q-item hidden">
+                <p>是对</p> <strong>“AI感”的本能排斥</strong>，<p>还是对</p> <strong>内容同质化的审美疲劳</strong>？
+            </div>
+            <div class="q-item hidden">
+                <p>更重要的是，这些负面声音是零星的</p> <strong>情绪宣泄</strong>...
+            </div>
+            <div class="q-item hidden">
+                <p>还是指向了AI短剧这一新兴内容形态的</p> <strong style="color:#ff3366; font-size: 1.6rem;">结构性缺陷</strong>？
+            </div>
+        </div>
+    </section>
+
+    <section class="sec-treemap">
+        <div class="hidden" style="margin-top:40px;">
+            <h3 style="text-align:center; font-size:1.6rem; margin-bottom:15px; color:#ff3366;">
+                基于用户负面评论分析，各类核心问题在总负面评价中的占比差异显著
+            </h3>
+            <!-- 修改部分开始 -->
+            <div class="neg-chart-container">
+                <div id="negativePie" style="width:60%; height:420px;"></div>
+                <div class="neg-text-box">
+                    通过图表可以看出，<span style="color:#fe0000;"><strong>内容质量问题</strong></span>是用户负面评价的首要来源，占比超过三分之一，说明<span style="color:#b70404;">剧情逻辑、套路化等内容硬伤</span>仍是观众不满的核心；<br><br>
+                    其次为<span style="color:#fe0000;"><strong>“其他”问题</strong></span>，反映出负面评价来源较为分散，大量零散的观看体验类吐槽同样占据重要比例；<br><br>
+                    <span style="color:#fe0000;"><strong>AI相关问题</strong></span>是第三大负面痛点，高于广告、题材、表演等传统问题，说明<span style="color:#b70404;">AI短剧的技术瑕疵已形成明确的用户感知；</span><br><br>
+                    此外，广告、题材争议、技术特效、演员表演、版权伦理及价值观问题的占比较低，并非负面评价的主流焦点。
+                </div>
+            </div>
+            <!-- 修改部分结束 -->
+        </div>
+    </section>
+
+    <section class="sec-reversal">
+        <div class="hidden">
+            <p class="reversal-text">
+                整体来看，短剧用户的负面反馈高度集中于内容质量。<br><br>
+                这也打破了人们对AI短剧<br>
+                <span style="font-size:2.5rem; margin-top:20px;">“全是技术问题”</span><br>
+                的刻板认知。
+            </p>
+            <p class="reversal-sub">
+                * 虽然技术缺陷依旧是独立的痛点，但传统制作类问题（如服化道/真人演技）的影响已被AI极大弱化。
+            </p>
+        </div>
+    </section>
+
+    <section class="sec-solution">
+        <h3 class="sol-header hidden">破局与迭代指南</h3>
+        <div class="sol-grid hidden">
+            <div class="sol-card">
+                <h3><div class="sol-icon">📝</div> 内容优先级优化</h3>
+                <p>AI短剧行业应以<strong>内容质量优化为核心</strong>。优先打磨剧本逻辑、减少同质化剧情，为冰冷的技术注入能够引发共鸣的故事灵魂。</p>
+            </div>
+            <div class="sol-card" style="transition-delay: 0.2s;">
+                <h3><div class="sol-icon">🔧</div> 技术瑕疵靶向修复</h3>
+                <p>重点解决AI短剧的技术痛点。通过算法迭代与模型微调，<strong>降低AI生成内容的机械感与穿模问题</strong>，提升画面的连贯性与角色的“活人感”。</p>
+            </div>
+            <div class="sol-card" style="transition-delay: 0.4s;">
+                <h3><div class="sol-icon">🛡️</div> 体验与风控管理</h3>
+                <p>优化广告植入形式与频次，平衡商业变现与用户体验。对题材争议、版权伦理做好合规引导；建立<strong>常态化评论监测机制</strong>，系统性降低负面反馈。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第五部分 AI VS 真人 -->
+    <section id="part5" class="sec-ruler">
+        <h2 class="section-title hidden"><span>五、</span>AI短剧 VS 真人短剧</h2>
+        <div class="hidden">
+            <h3 style="font-size: 2.5rem; margin-bottom: 20px;">观众的眼睛，到底在看什么？</h3>
+            <p class="ruler-text">剧本薄弱、逻辑混乱、套路化严重——这让AI短剧即便画面再精美，也难以留住观众。<br>观众并非因为“这是AI做的”而宽容，恰恰相反：</p>
+        </div>
+        <div class="ruler-container hidden"></div>
+        <p class="ruler-text hidden" style="margin-top:20px;">
+            他们用和真人短剧<strong>同样的尺子</strong>，丈量着AI短剧的故事、逻辑与节奏。
+        </p>
+    </section>
+
+    <section class="sec-vs">
+        <div class="hidden" style="text-align:center; margin-bottom:30px; color:#a1a1aa;">
+            选取两部题材相同、剧情相似的短剧（同IP）进行对照分析：
+        </div>
+        <div class="vs-wrapper hidden">
+            <div class="vs-side vs-ai">
+                <h3>《财神天降，送我上青云》</h3>
+                <p style="color:#88aadd; font-weight:bold;">[ AI 生成短剧 ]</p>
+                <div class="vs-data">6,082</div>
+                <div class="vs-desc">条有效评论数据提取</div>
+            </div>
+            <div class="vs-badge">VS</div>
+            <div class="vs-side vs-human">
+                <h3>《天降小财神，带我成富贵花》</h3>
+                <p style="color:#ffcc88; font-weight:bold;">[ 真人 演绎短剧 ]</p>
+                <div class="vs-data">6,851</div>
+                <div class="vs-desc">条有效评论数据提取</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="sec-chart">
+        <p class="chart-title hidden">两类短剧的观众，讨论焦点呈现出<strong>显著差异</strong></p>
+        <div class="hidden" id="radarChart"></div>
+        <div class="chart-note hidden">
+            ⚠️ 注意：无论是AI还是真人，<strong>剧情内容</strong>和<strong>情感共鸣</strong>的讨论占比均处于较低水平，这是当前微短剧行业的共同短板。
+        </div>
+    </section>
+
+    <section class="sec-insight">
+        <div class="insight-grid hidden">
+            <div class="insight-card" style="border-top: 3px solid #00f2fe;">
+                <p>看 AI 短剧时，观众的注意力被穿模、光影等问题大量消耗。满屏幕都在惊叹或者吐槽：</p>
+                <strong style="color:#00f2fe;">“这是怎么做出来的？”</strong>
+            </div>
+            <div class="insight-card" style="border-top: 3px solid #ffaa00; transition-delay: 0.3s;">
+                <p>相比之下，看真人短剧时，观众可以自然地忽略介质，入戏门槛更低，他们真正关心的是：</p>
+                <strong style="color:#ffaa00;">“谁在演、演了什么？”</strong>
+            </div>
+        </div>
+        <div class="sin-text hidden">
+            这一数据无情地印证了：技术瑕疵是阻碍AI短剧观众入戏的<strong>核心障碍</strong>。<br>
+            在这场视觉盛宴里，技术既是AI短剧最大的卖点，<br>
+            也是它始终无法让观众忘记介质、真正沉浸的<span class="sin-word">“原罪”</span>。
+        </div>
+    </section>
+
+    <section class="sec-future">
+        <div class="future-box hidden">
+            <p style="margin-bottom:30px; font-size:1.8rem; color:#fff;">未来的出路在哪里？</p>
+            <p>
+                未来AI短剧的进阶之路，不是无休止地炫技，<br>而是应尽力提升AI表现的自然度，<span class="fade-tech">降低技术感知度</span>。<br><br>
+                只有当技术学会隐身，才能让观众重新回归 <span class="focus-content">内容本身</span>。<br>
+                短剧创作，必须在“技术展示”与“情感体验”之间找回失落的平衡。
+            </p>
+        </div>
+    </section>
+
+    <!-- 第六部分 结语 -->
+    <section id="part6" class="sec-epilogue">
+        <h2 class="section-title hidden"><span>六、</span>结语</h2>
+        <p class="epi-intro hidden">
+            从AI短剧发展到观众态度画像，从用户负面评论到关注差异对比，<br>我们用数据勾勒出一幅AI短剧行业的发展图景：<br><br>
+            一方面，AI短剧用极低的成本、极高的产能，<strong>证明了技术对内容产业的颠覆力</strong>；<br>
+            另一方面，观众的反馈也<strong>清晰暴露了现阶段行业发展的困境</strong>。
+        </p>
+    </section>
+
+    <section class="sec-imbalance">
+        <div class="hidden">
+            <p class="imb-text">
+                观众的核心诉求从未因技术形式改变——始终是“看得舒服、看得进去、看得走心”。<br>
+                套路化剧情、情感表达单薄，叠加技术缺陷带来的体验割裂，让观众既无法被吸引，也难以共情。<br>
+                更关键的是，行业陷入了 <span>技术与内容的失衡</span>：
+            </p>
+        </div>
+        <div class="balance-container hidden" id="balance">
+            <div class="tray-left">
+                🤖<div class="tray-label" style="color:#4facfe;">过度技术迭代</div>
+            </div>
+            <div class="tray-right">
+                📖<div class="tray-label" style="color:#ff3366;">薄弱剧情内核</div>
+            </div>
+            <div class="beam"></div>
+            <div class="fulcrum"></div>
+        </div>
+        <p class="hidden" style="color:#888; margin-top:40px; max-width:800px; text-align:center;">
+            不少团队将资源过度倾斜于技术，却忽略了短剧的核心是“剧情为王”。AI生成的同质化剧情，甚至因技术缺陷被进一步放大。
+        </p>
+    </section>
+
+    <section class="sec-sublime">
+        <div class="sublime-box">
+            <p class="hidden" style="font-size:1.5rem; color:#fff;">技术是工具，而非目的。</p>
+            <div class="core-shift hidden">
+                从 “<span class="word-ai">用 AI 拍剧</span>” 的形式<br>
+                ⬇<br>
+                落脚于 “<span class="word-ai">用 AI 拍</span><span class="word-good">好</span><span class="word-ai">剧</span>” 的内核
+            </div>
+            <p class="sublime-desc hidden">
+                行业亟需在打磨角色、场景细节，降低违和感的同时，<strong>回归内容创作本身</strong>。<br>
+                用扎实的剧本、鲜活的人物，填补情感共鸣上的短板。<br><br>
+                唯有让技术服务于内容，而非掩盖内容的苍白，AI短剧才能真正从短期流量走向长期口碑。<br>
+                当观众的讨论从 <span style="color:#888; text-decoration:line-through;">“这AI做得像不像”</span> 转向 <span class="highlight-word" style="color:#00ffcc; font-size:1.5rem;">“这个故事好不好看”</span>，<br>AI短剧或许才真正找到了属于自己的破局之路。
+            </p>
+        </div>
+    </section>
+
+    <section class="sec-choice" id="choiceSec">
+        <div class="choice-text hidden">
+            AI短剧究竟是昙花一现的泡沫，还是一股不可逆的浪潮？<br><br>
+            答案就在每一个普通观众，下一次点开、或者<span style="color:#ffcc00;">划走</span>的那一秒钟里。<br>
+            让我们拭目以待。
+        </div>
+        <div class="phone-frame"></div>
+    </section>
+
+    <section class="sec-final">
+        <p class="final-intro hidden">
+            最后，我们留给所有创作者、平台与投资人，<br>也留给正在阅读这篇报告的你，一个问题：
+        </p>
+        <div class="final-question hidden" style="transition-delay: 0.5s;">
+            当AI学会了所有的技术，<br>
+            它又该如何 <span class="heart-beat-word">“ 动 人 心 ”</span> ？
+        </div>
+        <div class="end-mark hidden" style="transition-delay: 1.5s;"></div>
+    </section>
+
+    <!-- ==================== 统一脚本（无冲突版） ==================== -->
+    <script>
+
+    /* =========================================================
+    你的气泡逻辑（完全保留）
+    ========================================================= */
+
+    const bubbleData = [
+        { txt: 'AI短剧画质太逼真了，完全看不出是合成的' },
+        { txt: '剧情节奏超快，比传统短剧上头多了' },
+        { txt: '成本低产量高，AI短剧未来绝对是主流' },
+        { txt: '演员表情有点僵硬，希望优化下细节' },
+        { txt: '不用等拍摄，更新速度快到离谱' },
+        { txt: '剧情同质化严重，看多了有点腻' },
+        { txt: '带娃间隙刷AI短剧，解压神器' },
+        { txt: 'AI演技进步神速，已经能共情了' },
+        { txt: '特效拉满，追剧体验感直接翻倍' },
+        { txt: '希望多出点原创剧情，别总是翻拍' },
+        { txt: '随时随地能看，碎片化时间完美适配' },
+        { txt: '配音有点机械，人声感再强点就好了' },
+        { txt: 'AI短剧没有真人演员的档期问题，太方便了' },
+        { txt: '场景搭建太真实了，堪比院线大片' },
+        { txt: '剧情逻辑太牵强，完全经不起推敲' },
+        { txt: '免费看全集，比付费短剧香太多' },
+        { txt: 'AI生成的妆容服饰，审美越来越在线了' },
+        { txt: '人物动作太僵硬，像机器人在演戏' },
+        { txt: '一天能刷十部，追剧自由实现了' },
+        { txt: '题材太单一，全是霸总、玄幻、甜宠' },
+        { txt: '画面清晰度超高，无广告太爽了' },
+        { txt: '情绪渲染不到位，很难代入剧情' },
+        { txt: 'AI短剧拯救了我的摸鱼时间' },
+        { txt: '更新频率太快，根本追不过来' },
+        { txt: '希望能加入更多悬疑烧脑类型的剧情' },
+        { txt: '台词太俗套，全是老梗拼接' },
+        { txt: '不用看广告，不用会员，体验感满分' },
+        { txt: 'AI演员的微表情，比很多真人都自然' },
+        { txt: '剧情反转太生硬，毫无铺垫' },
+        { txt: '适合老年人观看，操作简单剧情直白' },
+        { txt: '画质偶尔会卡顿，希望优化加载速度' },
+        { txt: 'AI短剧的出现，降低了影视创作门槛' },
+        { txt: '看完就忘，没有记忆点和深度' },
+        { txt: '古风场景绝美，AI审美太绝了' },
+        { txt: '希望能自定义剧情，打造专属短剧' },
+        { txt: '配音和画面不同步，出戏感太强' },
+        { txt: '熬夜刷剧，AI短剧太让人上瘾了' },
+        { txt: '全是流水线作品，缺乏创作诚意' },
+        { txt: '现代剧场景还原度，和现实一模一样' },
+        { txt: '适合学生党，零成本娱乐消遣' },
+        { txt: 'AI短剧的发展速度，超出了我的预期' },
+        { txt: '人物对话太尴尬，完全不像真人交流' },
+        { txt: '无水印无剪辑，直接看完整版太香了' },
+        { txt: '希望能加入更多现实题材的剧情' },
+        { txt: '画面滤镜太重，显得很不真实' },
+        { txt: '上班族通勤路上，全靠AI短剧解闷' },
+        { txt: '剧情推进太快，很多细节没交代清楚' },
+        { txt: 'AI短剧让普通人也能当编剧' },
+        { txt: '特效廉价感太强，不如真人短剧用心' },
+        { txt: '题材覆盖面越来越广，总能找到喜欢的' }
+    ];
+
+    // 克隆数组，用于无重复抽取
+    let tempBubble = [...bubbleData];
+
+    setInterval(() => {
+        // 数组空了就重置
+        if(tempBubble.length === 0){
+            tempBubble = [...bubbleData];
+        }
+
+        // 随机抽取一个（不重复）
+        const index = Math.floor(Math.random() * tempBubble.length);
+        const data = tempBubble[index];
+        tempBubble.splice(index, 1); // 抽取后删除，避免重复
+
+        let b = document.createElement('div');
+        b.className = 'ai-bubble';
+        b.innerText = data.txt;
+
+        // 全屏随机 + 避开中间标题（你之前要的效果）
+        b.style.left = Math.random()*100 + '%';
+        const random = Math.random();
+        if(random > 0.5){
+            b.style.top = Math.random()*30 + '%';
+        }else{
+            b.style.top = 70 + Math.random()*30 + '%';
+        }
+
+        document.getElementById('bubbleBox').appendChild(b);
+        setTimeout(() => b.remove(), 8000);
+    }, 500);
+
+    /* =========================================================
+    新增：数字流
+    ========================================================= */
+
+    const flow = document.getElementById('dataFlow');
+
+    for(let i = 0; i < 35; i++) {
+
+        const line = document.createElement('div');
+
+        line.className = 'data-line';
+
+        line.style.left =
+            Math.random()*100 + '%';
+
+        line.style.height =
+            (Math.random()*220 + 80) + 'px';
+
+        line.style.animationDuration =
+            (Math.random()*5 + 4) + 's';
+
+        line.style.animationDelay =
+            Math.random()*5 + 's';
+
+        line.style.opacity =
+            Math.random()*0.5 + 0.15;
+
+        flow.appendChild(line);
+    }
+
+    /* =========================================================
+    新增：轻微镜头跟随
+    ========================================================= */
+
+    const hero = document.querySelector('.hero');
+
+    document.addEventListener('mousemove', (e) => {
+
+        const x =
+            (e.clientX / window.innerWidth - 0.5) * 8;
+
+        const y =
+            (e.clientY / window.innerHeight - 0.5) * 8;
+
+        hero.style.transform =
+            `translate(${x * 0.15}px, ${y * 0.15}px)`;
+    });
+
+    </script>
+
+
+    <script>
+        // 2. 滚动监听 + 导航栏显示 + 导航高亮
+        const navLinks = document.querySelectorAll('.nav-sidebar a');
+        const sidebar = document.querySelector('.nav-sidebar');
+        const heroHeight = document.querySelector('.hero').offsetHeight;
+
+        window.addEventListener('scroll', function() {
+            // 导航栏显示/隐藏
+            if (window.scrollY > heroHeight - 100) {
+                sidebar.classList.add('show');
+            } else {
+                sidebar.classList.remove('show');
+            }
+
+            // 导航高亮
+            let current = '';
+            document.querySelectorAll('section[id]').forEach(section => {
+                const top = section.getBoundingClientRect().top;
+                if (top < 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // 3. 统一滚动动画（正文所有动画）
+        document.addEventListener("DOMContentLoaded", function() {
+            const observerOptions = { threshold: 0.3 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('show');
+                        
+                        // 数字滚动
+                        if (entry.target.id === 'dataGrid' && !entry.target.dataset.animated) {
+                            runCounters();
+                            entry.target.dataset.animated = true;
+                        }
+                        // 词云
+                        if (entry.target.id === 'wordCloudChart' && !entry.target.dataset.animated) {
+                            initWordCloud();
+                            entry.target.dataset.animated = true;
+                        }
+                        // 手机飞出
+                        if (entry.target.id === 'choiceSec') {
+                            setTimeout(() => entry.target.classList.add('show-phone'), 500);
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.hidden').forEach(el => observer.observe(el));
+            observer.observe(document.getElementById('choiceSec'));
+
+            // 数字滚动
+            // 数字滚动动画逻辑（修复小数 + 规范缩进）
+            function runCounters() {
+                const counters = document.querySelectorAll('.counter');
+                const speed = 200;
+
+                counters.forEach(counter => {
+                    const updateCount = () => {
+                        const target = +counter.getAttribute('data-target');
+                        const count = +counter.innerText;
+                        const isFloat = counter.getAttribute('data-target').includes('.');
+                        const inc = target / speed;
+
+                        if (count < target) {
+                            if (isFloat) {
+                                counter.innerText = (count + inc).toFixed(1);
+                            } else {
+                                counter.innerText = Math.ceil(count + inc);
+                            }
+                            setTimeout(updateCount, 10);
+                        } else {
+                            counter.innerText = target;
+                        }
+                    };
+                    updateCount();
+                });
+            }
+
+            // 词云
+            function initWordCloud() {
+                const chartDom = document.getElementById('wordCloudChart');
+                const myChart = echarts.init(chartDom);
+                const fullData = [
+                    { name: '都市情感', value: 16735, textStyle: { color: '#00f2fe' } },
+                    { name: '逆袭', value: 9011, textStyle: { color: '#ff007f' } },
+                    { name: '甜宠', value: 7227, textStyle: { color: '#f5a623' } },
+                    { name: '爱情', value: 6305, textStyle: { color: '#00ffcc' } },
+                    { name: '古装', value: 6079, textStyle: { color: '#bd00ff' } },
+                    { name: '正能量', value: 5936, textStyle: { color: '#4834d4' } },
+                    { name: '架空玄幻', value: 4917, textStyle: { color: '#7bed9f' } },
+                    { name: '奇幻', value: 4494, textStyle: { color: '#ff6b6b' } },
+                    { name: '家庭情感', value: 4586, textStyle: { color: '#4facfe' } },
+                    { name: '成长', value: 4448, textStyle: { color: '#be2edd' } },
+                    { name: '其他剧情', value: 3922, textStyle: { color: '#8b949e' } },
+                    { name: '搞笑', value: 2198, textStyle: { color: '#ffa502' } },
+                    { name: '悬疑推理', value: 2011, textStyle: { color: '#a55eea' } },
+                    { name: '年代', value: 1614, textStyle: { color: '#64748b' } },
+                    { name: '乡村', value: 780, textStyle: { color: '#2ed573' } },
+                    { name: '青春', value: 730, textStyle: { color: '#2f3542' } },
+                    { name: '动作', value: 936, textStyle: { color: '#ff4757' } },
+                    { name: '伦理', value: 667, textStyle: { color: '#57606f' } },
+                    { name: '职场', value: 585, textStyle: { color: '#1e90ff' } },
+                    { name: '社会话题', value: 353, textStyle: { color: '#747d8c' } }
+                ];
+                const total = fullData.reduce((sum, item) => sum + item.value, 0);
+                myChart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: params => `${params.name}<br/>数量：${params.value}<br/>占比：${((params.value/total)*100).toFixed(1)}%`
+                    },
+                    series: [{
+                        type: 'wordCloud',
+                        shape: 'circle',
+                        sizeRange: [15,65],
+                        rotationRange: [0,0],
+                        gridSize:10,
+                        drawOutOfBound:false,
+                        layoutAnimation:false,
+                        textStyle: { fontFamily:'Microsoft YaHei', fontWeight:'bold', opacity:0 },
+                        emphasis: { textStyle: { shadowBlur:10, shadowColor:'#fff' } },
+                        data: fullData
+                    }]
+                });
+                let i=0;
+                function show(){
+                    if(i>=fullData.length)return;
+                    myChart.setOption({series:[{data:fullData.map((item,j)=>({...item,textStyle:{...item.textStyle,opacity:j<=i?1:0}}))}]});
+                    i++; setTimeout(show,150);
+                }
+                setTimeout(show,300);
+                window.addEventListener('resize',()=>myChart.resize());
+            }
+
+            // 趋势图
+            const myChart1 = echarts.init(document.getElementById('chart1'));
+            myChart1.setOption({
+                tooltip:{trigger:'axis',axisPointer:{type:'cross'}},
+                legend:{data:['在播老剧数','在播新剧数','每月新剧占比'],textStyle:{color:'#fff'}},
+                xAxis:[{type:'category',data:['2025年10月','2025年11月','2025年12月','2026年1月','2026年2月','2026年3月'],axisLabel:{color:'#ccc'}}],
+                yAxis:[{type:'value',name:'数量',axisLabel:{color:'#ccc'}},{type:'value',name:'占比(%)',axisLabel:{formatter:'{value}%',color:'#ccc'}}],
+                series:[
+                    {name:'在播老剧数',type:'bar',data:[5268,41490,46423,57674,93780,132712],itemStyle:{color:'#5470c6'}},
+                    {name:'在播新剧数',type:'bar',data:[1364,7018,12076,19629,34297,46650],itemStyle:{color:'#91cc75'}},
+                    {name:'每月新剧占比',type:'line',yAxisIndex:1,data:[20.57,14.47,20.64,25.39,26.78,26.01],itemStyle:{color:'#ee6666'}}
+                ]
+            });
+            window.addEventListener('resize',()=>myChart1.resize());
+
+            // 情感饼图
+            initPlatformPie();
+            function initPlatformPie(){
+                const chartDom = document.getElementById('platformPie');
+                const myChart = echarts.init(chartDom);
+                const platformData = {
+                    all:[
+                        {value:21599,name:'积极情绪',itemStyle:{color:'#00f2fe'}},
+                        {value:3218,name:'中性情绪',itemStyle:{color:'#bd00ff'}},
+                        {value:2178,name:'消极情绪',itemStyle:{color:'#ff3366'}}
+                    ],
+                    vertical:[{value:3337,name:'正面情感'},{value:526,name:'中性情感'},{value:337,name:'负面情感'}],
+                    short:[{value:5391,name:'正面情感'},{value:514,name:'中性情感'},{value:407,name:'负面情感'}],
+                    video:[{value:4519,name:'正面情感'},{value:1010,name:'中性情感'},{value:574,name:'负面情感'}],
+                    social:[{value:8352,name:'正面情感'},{value:1168,name:'中性情感'},{value:860,name:'负面情感'}]
+                };
+                const emotionData = {
+                    positive:[
+                        {value:3337,name:'垂直平台'},{value:5391,name:'短视频平台'},{value:4519,name:'综合视频平台'},{value:8352,name:'社交媒体平台'}
+                    ],
+                    neutral:[
+                        {value:526,name:'垂直平台'},{value:514,name:'短视频平台'},{value:1010,name:'综合视频平台'},{value:1168,name:'社交媒体平台'}
+                    ],
+                    negative:[
+                        {value:337,name:'垂直平台'},{value:407,name:'短视频平台'},{value:574,name:'综合视频平台'},{value:860,name:'社交媒体平台'}
+                    ]
+                };
+                myChart.setOption({
+                    tooltip:{trigger:'item'},
+                    legend:{textStyle:{color:'#fff'}},
+                    series:[{type:'pie',radius:['40%','70%'],data:platformData.all}]
+                });
+                myChart.on('click',params=>{
+                    if(document.querySelector('.dash-btn.active').dataset.platform!=='all')return;
+                    if(params.name==='积极情绪')myChart.setOption({series:[{data:emotionData.positive}]});
+                    if(params.name==='中性情绪')myChart.setOption({series:[{data:emotionData.neutral}]});
+                    if(params.name==='消极情绪')myChart.setOption({series:[{data:emotionData.negative}]});
+                });
+                document.getElementById('backToAll').onclick=()=>{
+                    myChart.setOption({series:[{data:platformData.all}]});
+                    document.querySelectorAll('.dash-btn').forEach(b=>b.classList.remove('active'));
+                    document.querySelector('[data-platform="all"]').classList.add('active');
+                };
+                document.querySelectorAll('.dash-btn').forEach(btn=>{
+                    btn.onclick=()=>{
+                        document.querySelectorAll('.dash-btn').forEach(b=>b.classList.remove('active'));
+                        btn.classList.add('active');
+                        myChart.setOption({series:[{data:platformData[btn.dataset.platform]}]});
+                    };
+                });
+                window.addEventListener('resize',()=>myChart.resize());
+            }
+
+            // 桑基图
+            const sankey = echarts.init(document.getElementById('sankey-chart'));
+            // 放在 sankey 代码最前面，全局可用
+            let sankeyData = [
+                { name:'垂直平台'},{name:'短视频平台'},{name:'社交媒体平台'},{name:'综合视频平台'},
+                {name:'正面情感',itemStyle:{color:'#00f2fe'}},
+                {name:'中性情感',itemStyle:{color:'#bd00ff'}},
+                {name:'负面情感',itemStyle:{color:'#ff3366'}},
+                {name:'好看'},{name:'鼓掌'},{name:'偷笑'},{name:'送花'},{name:'捂脸'},{name:'短剧'},{name:'更新'},{name:'AI相关'},{name:'真人演员'},
+                {name:'表情僵硬'},{name:'情感缺失'},{name:'质量差'},{name:'剧情问题'}
+            ];
+
+            let sankeyLinks = [
+                {source:'垂直平台',target:'正面情感',value:3337},
+                {source:'垂直平台',target:'中性情感',value:526},
+                {source:'垂直平台',target:'负面情感',value:337},
+                {source:'短视频平台',target:'正面情感',value:5391},
+                {source:'短视频平台',target:'中性情感',value:514},
+                {source:'短视频平台',target:'负面情感',value:407},
+                {source:'社交媒体平台',target:'正面情感',value:8352},
+                {source:'社交媒体平台',target:'中性情感',value:1168},
+                {source:'社交媒体平台',target:'负面情感',value:860},
+                {source:'综合视频平台',target:'正面情感',value:4519},
+                {source:'综合视频平台',target:'中性情感',value:1010},
+                {source:'综合视频平台',target:'负面情感',value:574},
+                {source:'正面情感',target:'好看',value:1830},
+                {source:'正面情感',target:'鼓掌',value:782},
+                {source:'正面情感',target:'偷笑',value:735},
+                {source:'正面情感',target:'送花',value:586},
+                {source:'正面情感',target:'捂脸',value:2527},
+                {source:'正面情感',target:'短剧',value:2147},
+                {source:'正面情感',target:'更新',value:228},
+                {source:'中性情感',target:'AI相关',value:6426},
+                {source:'中性情感',target:'真人演员',value:1795},
+                {source:'负面情感',target:'表情僵硬',value:800},
+                {source:'负面情感',target:'情感缺失',value:550},
+                {source:'负面情感',target:'质量差',value:450},
+                {source:'负面情感',target:'剧情问题',value:378}
+            ];
+            sankey.setOption({
+                backgroundColor:'#0a192f',
+                series:[{
+                    type:'sankey',
+                    nodeWidth:16,
+                    label:{color:'#fff'},
+                    emphasis: {
+                        focus: 'adjacency'
+                    },
+                    data: sankeyData,
+                    links: sankeyLinks
+                    
+                }]
+            });
+            // 记录节点是否展开
+            let expandState = {
+                '正面情感': true,
+                '中性情感': true,
+                '负面情感': true
+            };
+
+            // 所有二级节点名单
+            const childNodes = ['好看','鼓掌','偷笑','送花','捂脸','短剧','更新','AI相关','真人演员','表情僵硬','情感缺失','质量差','剧情问题'];
+
+            // 点击事件
+            sankey.on('click', function(params) {
+                const name = params.name;
+                // 只对这三个节点生效
+                if (!['正面情感','中性情感','负面情感'].includes(name)) return;
+
+                expandState[name] = !expandState[name];
+                const show = expandState[name];
+
+                // 过滤 links：保留/移除二级节点
+                const newLinks = sankeyLinks.filter(link => {
+                    const s = link.source;
+                    const t = link.target;
+                    // 点击节点 → 只保留/删除它的下级
+                    if (s === name) return show;
+                    // 其他正常保留
+                    return true;
+                });
+
+                // 过滤 data：同步二级节点显示/隐藏
+                const newData = sankeyData.filter(d => {
+                    if (childNodes.includes(d.name)) {
+                        // 二级节点：只在父节点展开时显示
+                        const parent = sankeyLinks.find(l => l.target === d.name)?.source;
+                        return parent && expandState[parent];
+                    }
+                    return true;
+                });
+
+                // 更新图表
+                sankey.setOption({
+                    series: [{
+                        data: newData,
+                        links: newLinks
+                    }]
+                });
+            });
+            window.addEventListener('resize',()=>sankey.resize());
+            // 负面饼图
+            const negChart = echarts.init(document.getElementById('negativePie'));
+            negChart.setOption({
+                backgroundColor:'transparent',
+                tooltip:{trigger:'item'},
+                legend:{orient:'vertical',width:300,left:30,top:'middle',type:'scroll',textStyle:{color:'#e0e0e0',width:120},itemGap:15,itemWidth:14,itemHeight:14,data:['内容质量','其他','AI相关','广告/营销','题材','技术/特效','演员/表演','版权/伦理','价值观']},
+                series:[{
+                    type:'pie',radius:['42%','72%'],center:['58%','50%'],
+                    data:[
+                        {name:'内容质量',value:34.92,itemStyle:{color:'#ff3366'}},
+                        {name:'其他',value:33.34,itemStyle:{color:'#ff9f43'}},
+                        {name:'AI相关',value:12.12,itemStyle:{color:'#ffcc00'}},
+                        {name:'广告/营销',value:10.30,itemStyle:{color:'#ee6666'}},
+                        {name:'题材',value:3.48,itemStyle:{color:'#00f2fe'}},
+                        {name:'技术/特效',value:3.10,itemStyle:{color:'#4facfe'}},
+                        {name:'演员/表演',value:1.59,itemStyle:{color:'#00ffcc'}},
+                        {name:'版权/伦理',value:0.97,itemStyle:{color:'#bd00ff'}},
+                        {name:'价值观',value:0.18,itemStyle:{color:'#6c5ce7'}}
+                    ]
+                }]
+            });
+            window.addEventListener('resize',()=>negChart.resize());
+
+            // 雷达图
+            const radar = echarts.init(document.getElementById('radarChart'));
+            radar.setOption({
+                backgroundColor:'rgb(10, 10, 26,0.3)',
+                legend:{data:['AI短剧','真人短剧'],textStyle:{color:'#fff'}},
+                radar:{
+                    indicator:[
+                        {name:'技术特效',max:100},{name:'演员人物',max:100},{name:'剧情内容',max:100},{name:'情感共鸣',max:100},{name:'画面观感',max:100}
+                    ],
+                    axisName:{color:'#fff'},splitArea:{areaStyle:{color:['rgba(255,255,255,0.02)','rgba(255,255,255,0.05)']}}
+                },
+                series:[{
+                    type:'radar',
+                    data:[
+                        {value:[84,100,90,70,99],name:'AI短剧',areaStyle:{color:'rgba(0,242,254,0.3)'}},
+                        {value:[16,85,80,87,73],name:'真人短剧',areaStyle:{color:'rgba(255,159,67,0.3)'}}
+                    ]
+                }]
+            });
+            window.addEventListener('resize',()=>radar.resize());
+        });
+    </script>
+</body>
+</html>
