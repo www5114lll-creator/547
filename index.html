@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>当AI学会演戏，你“入戏”了吗？</title>
 
+    <!-- 引入 ECharts CDN → 【新增：必须放在头部才能正常渲染图表】 -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
 
@@ -763,8 +764,13 @@
         }
 
         /* 章节大标题 */
-        .section-title { font-size: 2.5rem; color: #fff; margin-bottom: 50px; text-align: center; letter-spacing: 2px; }
+        .section-title { font-size: 2.5rem; color: #fff; margin-bottom: 50px; text-align: left; letter-spacing: 2px; }
         .section-title span { color: #4facfe; }
+        /* 仅控制 单个左对齐标题 */
+        .title-left {
+        text-align: center !important; /* 核心参数：强制左对齐 */
+        padding-left: 0; /* 可选：贴紧左侧，更整齐 */
+        }
 
         /* 第一屏：定义与数据卡片 */
         .def-box { text-align: center; font-size: 1.2rem; color: #a1a1aa; max-width: 800px; margin: 0 auto 60px auto; }
@@ -1280,7 +1286,7 @@
             <p>“<span>第一步写剧情</span>，让AI根据要求写一个剧情大纲，仔细看一下内容设定。</p><br>
             <p><span>第二步，让AI将剧情写成分镜脚本</span>，越详细越好，例如时长、画面、特效、运镜、台词等。</p><br>
             <p><span>第三步，文字生图片</span>，让AI给出场景和人物提示词，复制关键词来到节目生产线，这样我们就会得到主角形象……”</p><br>
-            <p style="color:#4facfe; margin-top:15px;">这并非科幻小说的情节，而是当下AI短剧创作者的真实日常。</p>
+            <p style="color:#4facfe; margin-top:15px;font-size: 27px;"><strong>这并非科幻小说的情节，而是当下AI短剧创作者的真实日常。</strong></p>
         </div>
     </section>
 
@@ -1314,7 +1320,7 @@
 
     <section class="sec-data">
         <div class="data-box hidden">
-            <div style="font-size:3rem; margin-bottom:20px;">📊</div>
+            <div style="font-size:3rem; margin-bottom:20px;">👾</div>
             <p>为了拨开迷雾，我们爬取了红果短剧等垂直类平台、抖音等短视频平台、腾讯视频等综合平台，及微博、小红书等社交媒体，</p>
             <p style="color:#00ffcc; font-size:1.5rem; margin-top:20px; font-weight:bold;">共计数万条数据</p>
             <p style="margin-top:20px;">以此为基础分析观众对AI短剧的真实声音与态度，剖析行业问题。</p>
@@ -1326,7 +1332,7 @@
 
     <!-- 第二部分 背景概况 -->
     <section id="part2">
-        <h2 class="section-title hidden"><span>二、</span>背景概况</h2>
+        <h2 class="section-title hidden"><span>📊</span><span style="color:#00ffdd">背景概况</span></h2>
         <div class="def-box hidden">
             <p>AI短剧即运用AI技术（文生视频、建模、配音、剪辑等）参与核心创作环节，单集1-10分钟、竖屏为主的轻量化内容。<strong>2026年进入爆发期</strong>，已成为短剧产能绝对主力，市场热度与用户规模跨越式增长。</p>
         </div>
@@ -1389,7 +1395,7 @@
 
     <!-- 第三部分 观众态度 -->
     <section id="part3" class="sec-collide">
-        <h2 class="section-title hidden"><span>三、</span>观众态度画像</h2>
+        <h2 class="section-title hidden"><span>👥</span><span style="color:#00ffdd">观众态度画像</span></h2>
         <div class="ice-fire-title hidden">冰火两重天？</div>
         <div class="collide-words hidden">
             <span class="word-ice">惊艳！</span>
@@ -1515,7 +1521,7 @@
 
     <!-- 第四部分 负面评价 -->
     <section id="part4" class="sec-questioning">
-        <h2 class="section-title hidden"><span>四、</span>负面评价分析</h2>
+        <h2 class="section-title hidden"><span>⚠️</span><span style="color:#00ffdd">负面评价分析</span></h2>
         <div class="hidden">
             <h3 class="fade-out-title"><span>当</span>“喜欢”<span>褪去</span>，<span>留下的究竟是什么？</span></h3>
         </div>
@@ -1591,7 +1597,7 @@
 
     <!-- 第五部分 AI VS 真人 -->
     <section id="part5" class="sec-ruler">
-        <h2 class="section-title hidden"><span>五、</span>AI短剧 VS 真人短剧</h2>
+        <h2 class="section-title hidden"><span>⚔️</span><span style="color:#00ffdd">AI短剧 VS 真人短剧</span></h2>
         <div class="hidden">
             <h3 style="font-size: 2.5rem; margin-bottom: 20px;">观众的眼睛，到底在看什么？</h3>
             <p class="ruler-text">剧本薄弱、逻辑混乱、套路化严重——这让AI短剧即便画面再精美，也难以留住观众。<br>观众并非因为“这是AI做的”而宽容，恰恰相反：</p>
@@ -1662,7 +1668,7 @@
 
     <!-- 第六部分 结语 -->
     <section id="part6" class="sec-epilogue">
-        <h2 class="section-title hidden"><span>六、</span>结语</h2>
+        <h2 class="section-title hidden title-left"><span><strong>The End</strong></span></h2>
         <p class="epi-intro hidden">
             从AI短剧发展到观众态度画像，从用户负面评论到关注差异对比，<br>我们用数据勾勒出一幅AI短剧行业的发展图景：<br><br>
             一方面，AI短剧用极低的成本、极高的产能，<strong>证明了技术对内容产业的颠覆力</strong>；<br>
