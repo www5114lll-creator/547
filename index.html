@@ -1994,6 +1994,19 @@
                 const total = fullData.reduce((sum, item) => sum + item.value, 0);
                 myChart.setOption({
                     backgroundColor: 'transparent',
+                    title: {
+                        text: 'AI短剧题材词云图', // 图表主标题
+                        left: 'center', // 标题位置：center/left/right/像素值
+                        bottom: '10px', // 距离顶部的距离
+                        // 主标题样式（适配你的科技风）
+                        textStyle: {
+                        color: 'rgb(255,255,255)', // 科技蓝（和页面发光色一致）
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        textShadow: '0 0 10px rgba(0,242,254,0.8)', // 发光效果
+                        fontFamily: 'PingFang SC, Microsoft YaHei'
+                        },
+                    },
                     tooltip: {
                         trigger: 'item',
                         formatter: params => `${params.name}<br/>数量：${params.value}<br/>占比：${((params.value/total)*100).toFixed(1)}%`
@@ -2024,6 +2037,19 @@
             // 趋势图
             const myChart1 = echarts.init(document.getElementById('chart1'));
             myChart1.setOption({
+                title: {
+                    text: 'AI短剧趋势图', // 图表主标题
+                    left: 'center', // 标题位置：center/left/right/像素值
+                    bottom: '10px', // 距离顶部的距离
+                    // 主标题样式（适配你的科技风）
+                    textStyle: {
+                    color: 'rgb(255,255,255)', // 科技蓝（和页面发光色一致）
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    textShadow: '0 0 10px rgba(0,242,254,0.8)', // 发光效果
+                    fontFamily: 'PingFang SC, Microsoft YaHei'
+                    },
+                },
                 tooltip:{trigger:'axis',axisPointer:{type:'cross'}},
                 legend:{data:['在播老剧数','在播新剧数','每月新剧占比'],textStyle:{color:'#fff'}},
                 xAxis:[{type:'category',data:['2025年10月','2025年11月','2025年12月','2026年1月','2026年2月','2026年3月'],axisLabel:{color:'#ccc'}}],
@@ -2130,6 +2156,19 @@
             ];
             sankey.setOption({
                 backgroundColor:'#0a192f',
+                title: {
+                    text: '桑基图', // 图表主标题
+                    right: '30px', // 标题位置：center/left/right/像素值
+                    top: '20px', // 距离顶部的距离
+                    // 主标题样式（适配你的科技风）
+                    textStyle: {
+                    color: 'rgb(255,255,255)', // 科技蓝（和页面发光色一致）
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    textShadow: '0 0 10px rgba(0,242,254,0.8)', // 发光效果
+                    fontFamily: 'PingFang SC, Microsoft YaHei'
+                    },
+                },
                 series:[{
                     type:'sankey',
                     nodeWidth:16,
@@ -2193,6 +2232,19 @@
             // 负面饼图
             const negChart = echarts.init(document.getElementById('negativePie'));
             negChart.setOption({
+                title: {
+                    text: '负面评价核心问题分布图', // 图表主标题
+                    left: 'center', // 标题位置：center/left/right/像素值
+                    bottom: '0px', // 距离顶部的距离
+                    // 主标题样式（适配你的科技风）
+                    textStyle: {
+                    color: 'rgb(255,255,255)', // 科技蓝（和页面发光色一致）
+                    fontSize: 12,
+                    fontWeight: 'bold',
+                    textShadow: '0 0 10px rgba(0,242,254,0.8)', // 发光效果
+                    fontFamily: 'PingFang SC, Microsoft YaHei'
+                    },
+                },
                 backgroundColor:'transparent',
                 tooltip:{trigger:'item'},
                 legend:{orient:'vertical',width:300,left:30,top:'middle',type:'scroll',textStyle:{color:'#e0e0e0',width:120},itemGap:15,itemWidth:14,itemHeight:14,data:['内容质量','其他','AI相关','广告/营销','题材','技术/特效','演员/表演','版权/伦理','价值观']},
@@ -2216,6 +2268,19 @@
             // 雷达图
             const radar = echarts.init(document.getElementById('radarChart'));
             radar.setOption({
+                title: {
+                    text: '关注点雷达图', // 图表主标题
+                    left: 'center', // 标题位置：center/left/right/像素值
+                    bottom: '10px', // 距离顶部的距离
+                    // 主标题样式（适配你的科技风）
+                    textStyle: {
+                    color: 'rgb(255,255,255)', // 科技蓝（和页面发光色一致）
+                    fontSize: 14,
+                    fontWeight: 'bold',
+                    textShadow: '0 0 10px rgba(0,242,254,0.8)', // 发光效果
+                    fontFamily: 'PingFang SC, Microsoft YaHei'
+                    },
+                },
                 backgroundColor:'rgb(10, 10, 26,0.3)',
                 legend:{data:['AI短剧','真人短剧'],textStyle:{color:'#fff'}},
                 radar:{
