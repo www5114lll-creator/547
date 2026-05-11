@@ -8,7 +8,8 @@
     <!-- 引入 ECharts CDN → 【新增：必须放在头部才能正常渲染图表】 -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
-
+    
+</head>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -47,6 +48,23 @@
         padding-right: 20px;
         border-left: 1px dashed rgba(255, 51, 102, 0.3);
         padding-left: 25px;
+    }
+    /* 自定义文字样式：字体、缩进、字符间距 */
+    .custom-text {
+        /* 1. 更换字体（任选一个） */
+        font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif;
+
+        /* 2. 首行缩进 2 字符（最常用、最美观） */
+        text-indent: 2em;
+        display: inline-block; /* 必须加，span 才能生效缩进 */
+
+        /* 3. 字符间距（数值越大字越稀） */
+        letter-spacing: 1px;
+
+        /* 额外优化：行高、字号（可删可改） */
+        font-size: 16px;
+        line-height: 1.8;
+        color: #fff;
     }
 
     /* 移动端适配：改为上下排列 */
@@ -548,7 +566,7 @@
 
         .highlight {
             font-size: 80px;
-        }
+        }   
 
         .eye-glow {
             width: 120px;
@@ -770,6 +788,115 @@
         .title-left {
         text-align: center !important; /* 核心参数：强制左对齐 */
         padding-left: 0; /* 可选：贴紧左侧，更整齐 */
+        }
+
+        /* ==================== 聚类分析专属样式（完美适配原有风格） ==================== */
+        .sec-cluster {
+            background: rgba(10, 10, 26, 0.3);
+            padding: 80px 10%;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            min-height: auto;
+        }
+        .cluster-controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .cluster-wrapper {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+        }
+        .cluster-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .cluster-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+        .cluster-chart {
+            width: 100%;
+            height: 380px;
+        }
+        .cluster-table-card {
+            flex:2;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .cluster-table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #d1d5db;
+            font-size: 0.7rem;
+        }
+        .data-table th {
+            background: rgba(0, 242, 254, 0.1);
+            color: #00f2fe;
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .data-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .data-table tr:hover {
+            background: rgba(0, 242, 254, 0.05);
+        }
+        .cluster-keyword {
+            display: inline-block;
+            padding: 4px 10px;
+            margin: 0 5px 5px 0;
+            background: rgba(0, 242, 254, 0.15);
+            color: #00f2fe;
+            border-radius: 12px;
+            font-size: 0.7rem;
+        }
+        /* 矩形 */
+        .container { margin: 0 auto; }
+        .main-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(0,242,254,0.3);
+        }
+        .tips {
+            text-align: center;
+            color: #a1a1aa;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        #treemapChart {
+            width: 160%;
+            
+            height: 500px;       /* 高度随宽度自动适配 */
+            
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(0,242,254,0.12);
+            border-radius: 18px;
+            margin: 30px auto 20px; /* 顶部留30px，向下挪 */
         }
 
         /* 第一屏：定义与数据卡片 */
@@ -1088,6 +1215,59 @@
         }
         .chart-note { text-align: center; margin-top: 30px; color: #ff3366; font-size: 1rem; border: 1px dashed #ff3366; padding: 15px; border-radius: 8px; max-width: 600px; margin-left: auto; margin-right: auto;}
 
+        /* 雷达图容器整体布局 - 核心：左右分栏 */
+        .radar-container {
+        display: flex;
+        align-items: center; /* 垂直居中对齐 */
+        gap: 30px; /* 文字与图表间距 */
+        background: rgba(10, 10, 26, 0.3);
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+        }
+
+        /* 左侧文字区域 */
+        .radar-text {
+        flex: 1; /* 占据左侧1份宽度 */
+        color: #d1d5db;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        text-align: left;
+        padding-right: 20px;
+        border-right: 1px dashed rgba(0,242,254,0.3); /* 右侧分隔线 */
+        }
+
+        /* 右侧雷达图容器 */
+        .radar-chart-box {
+        flex: 1; /* 占据右侧1份宽度 */
+        display: flex;
+        justify-content: center; /* 图表水平居中 */
+        }
+
+        .radar-chart {
+        width: 100%;
+        height: 450px; /* 雷达图高度，可按需调整 */
+        background: rgba(255,255,255,0.03);
+        border-radius: 12px;
+        }
+
+        /* 移动端适配：屏幕宽度<900px时改为上下排列 */
+        @media (max-width: 900px) {
+        .radar-container {
+            flex-direction: column;
+            padding: 20px;
+        }
+        .radar-text {
+            border-right: none;
+            border-bottom: 1px dashed rgba(0,242,254,0.3); /* 改为底部分隔线 */
+            padding-right: 0;
+            padding-bottom: 20px;
+        }
+        .radar-chart {
+            height: 350px; /* 移动端缩小图表高度 */
+        }
+        }
         /* --- 第四屏：金句洞察与原罪 --- */
         .sec-insight { padding-bottom: 50px; }
         .insight-grid { display: flex; gap: 40px; margin-bottom: 60px; }
@@ -1179,6 +1359,38 @@
         .end-mark { margin-top: 100px; width: 10px; height: 10px; background: #333; border-radius: 50%; display: inline-block; }
 
         /* 响应式 */
+
+        /* 平板端 */
+        @media (max-width: 900px) {
+            #treemapChart { aspect-ratio: 4/3; } /* 稍调整比例，仍保证宽>高 */
+            #chart1 { aspect-ratio: 4/3; height: auto; }
+            #wordCloudChart { aspect-ratio: 4/3; height: auto; }
+        }
+        /* 手机端 */
+        @media (max-width: 576px) {
+            #treemapChart { aspect-ratio: 1.5/1; } /* 最小比例仍保证宽>高 */
+        }
+
+        @media (max-width: 900px) {
+            .cluster-wrapper {
+                flex-direction: column;
+                gap: 25px;
+            }
+            .sec-cluster {
+                padding: 60px 5%;
+            }
+        }
+        @media (max-width: 768px) {
+            .data-table th, .data-table td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+            .sec-showcase { flex-direction: column; }
+            .showcase-text, .showcase-images { width: 100%; }
+            .showcase-images { margin-top: 40px; height: 300px; }
+            .sec-intro h1 { font-size: 2rem; }
+        }
+
         @media (max-width: 768px) {
             .sec-showcase { flex-direction: column; }
             .showcase-text, .showcase-images { width: 100%; }
@@ -1410,7 +1622,7 @@
     <section class="sec-dominate">
         <div class="hidden">
             <h3 style="font-size:2rem; margin-bottom:20px;">整体态度：<span style="color:#00f2fe;">正面占据绝对主导</span></h3>
-            <p class="dominate-text">所有平台的正面情感表达都远超负面和中性情感，表明用户对AI短剧整体持积极态度。<br>具体来看，综合视频平台总情感表达量最高；且各平台负面情感表达<strong>均在21条以下</strong>，批评声音极少。</p>
+            <p class="dominate-text">所有平台的正面情感表达都远超负面和中性情感，表明用户对AI短剧整体持积极态度。<br>具体来看，综合视频平台情感表达较为丰富；且各平台负面情感表达<strong>较少</strong>。</p>
             <div class="dash-container hidden">
                 <div class="dash-controls">
                     <button class="dash-btn active" data-platform="all">
@@ -1480,26 +1692,77 @@
         </div>
     </section>
 
+    <!-- ==================== 新增：聚类结果可视化（完美插入） ==================== -->
+    <section class="sec-cluster hidden">
+        <!-- <h2 class="section-title hidden"><span>📊</span><span style="color:#00ffdd">聚类结果可视化</span></h2> -->
+        <h2 class="hidden" style="font-size:2rem; margin-bottom:20px;text-align:center;">聚类分析与平台分化</h2>
+        <div class="cluster-controls hidden">
+            <button class="dash-btn active" data-platform="社交媒体平台">
+                <span class="btn-icon">🌐</span>社交媒体平台
+            </button>
+            <button class="dash-btn" data-platform="垂直平台">
+                <span class="btn-icon">📱</span>垂直平台
+            </button>
+            <button class="dash-btn" data-platform="短视频平台">
+                <span class="btn-icon">🎵</span>短视频平台
+            </button>
+            <button class="dash-btn" data-platform="综合视频平台">
+                <span class="btn-icon">📺</span>综合视频平台
+            </button>
+        </div>
+        <div class="cluster-wrapper hidden">
+            <div class="cluster-card">
+                <h3 class="cluster-title">聚类分布占比</h3>
+                <div id="clusterPieChart" class="cluster-chart"></div>
+            </div>
+
+            <div class="cluster-table-card hidden">
+                <h3 class="cluster-title">聚类详情数据表</h3>
+                <div class="cluster-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>聚类编号</th>
+                                <th>聚类名称</th>
+                                <th>评论数量</th>
+                                <th>主要关键词</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clusterTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section>
+        <div class="container">
+            <h2 class="main-title">平台关注点分层分析</h2>
+            <p class="tips">（点击查看各类平台关注点）</p>
+            <div id="treemapChart"></div>
+        </div>
+    </section>
+
     <section class="sec-sankey">
-        <h3 class="hidden" style="font-size:2rem; margin-bottom:20px;">聚类分析与平台分化</h3>
-        <p class="hidden" style="color:#a1a1aa; margin-bottom:20px;">结合聚类分析绘制桑基图，我们发现：平台特性深刻影响着观众的关注点。<br><span style="color:#fd5757;">（可拖动各色块进行自定义排布）</span></p>
-        <div id="sankey-chart" class="hidden" style="width:100%;height:500px;background:#0a192f;border-radius:16px;"></div>
+        <h3 class="hidden" style="font-size:2rem; margin-bottom:20px;">结合这些数据，我们发现：<span style="color:#00f2fe;">平台特性深刻影响着观众的关注点。</span></h3>
+
         <div class="platform-grid hidden">
             <div class="plat-card">
                 <strong>📱 垂直平台</strong>
-                关注内容本身的喜爱度，负面反馈较少且最为分散。
+                专注剧情讨论，内容深度较高，追求创新。
             </div>
             <div class="plat-card" style="transition-delay: 0.2s;">
                 <strong>🎵 短视频平台</strong>
-                高度关注AI技术的创新迭代和具体的实现方式。
+                内容喜好明确，偏好轻松娱乐和视觉冲击，用户参与度高。
             </div>
             <div class="plat-card" style="transition-delay: 0.4s;">
                 <strong>💬 社交媒体</strong>
-                技术发展与内容体验并重，热衷于探讨和安利。
+                情感表达丰富，互动性强，注重情感共鸣。
             </div>
             <div class="plat-card" style="transition-delay: 0.6s;">
                 <strong>📺 综合视频</strong>
-                情感表达最丰富，正面最多，但“负面反馈”也最多。
+                专业评价较多，技术讨论深入，更加关注专业制作水平和技术实现。
             </div>
         </div>
         <p class="hidden" style="margin-top:30px; color:#888;">*后续不同平台AI短剧应针对不同用户属性有不同侧重点的发展。</p>
@@ -1631,10 +1894,25 @@
 
     <section class="sec-chart">
         <p class="chart-title hidden">两类短剧的观众，讨论焦点呈现出<strong>显著差异</strong></p>
-        <div class="hidden" id="radarChart"></div>
-        <div class="chart-note hidden">
-            ⚠️ 注意：无论是AI还是真人，<strong>剧情内容</strong>和<strong>情感共鸣</strong>的讨论占比均处于较低水平，这是当前微短剧行业的共同短板。
+        <!-- 雷达图+文字区块（新增/替换原有雷达图容器） -->
+
+        <div class="radar-container">
+            <!-- 左侧文字区域 -->
+            <div class="radar-text">
+                <span class="custom-text">剧情与情感表达这两个维度的雷达点几乎重合，<span style="color:#00f2fe"><strong>说明“情绪爽点”是短剧的核心吸引力，</strong></span>这类短剧的剧情高度套路化，用户很少深入讨论剧情逻辑、设定，仅将其作为爽点的载体，而非核心关注对象。</span>
+                <span class="custom-text">这也体现出，<span style="color:#ff007f"><strong>无论是AI生成还是真人演绎，用户的核心需求都是通过内容获得情绪释放（如代入角色、爽感、共情），与形式联系较小。</strong></span></span>
+                <br><br>
+                <span class="custom-text">此外，AI短剧在<span style="color:#00ffdd"><strong>“技术特效”</strong></span>维度的关注度远高于真人短剧，是其核心优势讨论点，说明观众较为关注<strong>AI生成的特效、画面质感</strong>；而真人短剧在<span style="color:#ff416c"><strong>“演员/人物”</strong></span>维度的讨论占比远超于AI短剧，是所有维度中差距最大的一项，说明<strong>演员的表演、角色塑造是真人短剧用户最关心的内容，也是AI短剧目前无法触及的短板</strong>。</span>
+            </div>
+            <!-- 右侧雷达图容器 -->
+            <div class="radar-chart-box">
+            <div id="radarChart" class="radar-chart"></div> <!-- 雷达图DOM节点 -->
+            </div>
         </div>
+        <div class="chart-note hidden">
+            这张雷达图也揭示了一个关键事实：<span style="color:#facc15"><strong>AI短剧与真人短剧并非简单的“替代关系”，而是服务于不同用户需求的两条赛道。</strong></span>AI短剧靠“AI生成”的形式新鲜感吸引猎奇向用户，真人短剧靠演员演绎的真实感留住代入感用户，但两者最终都指向同一个核心——<span style="color:#facc15"><strong>为用户提供即时、强烈的情绪价值</strong></span>。对于短剧行业而言，<br><span style="color:#fff"><strong>无论技术如何迭代，抓住用户的情绪需求，才是不变的生存逻辑。</strong></span>
+        </div>
+
     </section>
 
     <section class="sec-insight">
@@ -1742,6 +2020,7 @@
     /* =========================================================
     你的气泡逻辑（完全保留）
     ========================================================= */
+    // 1. 全局数据定义（放在 script 标签最前面）
 
     const bubbleData = [
         { txt: 'AI短剧画质太逼真了，完全看不出是合成的' },
@@ -2115,120 +2394,241 @@
                 window.addEventListener('resize',()=>myChart.resize());
             }
 
-            // 桑基图
-            const sankey = echarts.init(document.getElementById('sankey-chart'));
-            // 放在 sankey 代码最前面，全局可用
-            let sankeyData = [
-                { name:'垂直平台'},{name:'短视频平台'},{name:'社交媒体平台'},{name:'综合视频平台'},
-                {name:'正面情感',itemStyle:{color:'#00f2fe'}},
-                {name:'中性情感',itemStyle:{color:'#bd00ff'}},
-                {name:'负面情感',itemStyle:{color:'#ff3366'}},
-                {name:'好看'},{name:'鼓掌'},{name:'偷笑'},{name:'送花'},{name:'捂脸'},{name:'短剧'},{name:'更新'},{name:'AI相关'},{name:'真人演员'},
-                {name:'表情僵硬'},{name:'情感缺失'},{name:'质量差'},{name:'剧情问题'}
-            ];
+            const clusterData = {
+        "社交媒体平台": [
+            { id: 1, name: "内容质量评价", size: 3245, percentage: 33.0, keywords: ["剧情", "内容", "质量", "好看", "精彩"] },
+            { id: 2, name: "情感表达", size: 2187, percentage: 22.2, keywords: ["喜欢", "支持", "感动", "开心", "难过"] },
+            { id: 3, name: "AI技术讨论", size: 1562, percentage: 15.9, keywords: ["AI", "技术", "生成", "人工智能", "算法"] },
+            { id: 4, name: "演员表现", size: 1245, percentage: 12.6, keywords: ["演员", "表演", "角色", "演技", "形象"] },
+            { id: 5, name: "平台体验", size: 987, percentage: 10.0, keywords: ["平台", "界面", "体验", "操作", "功能"] },
+            { id: 6, name: "行业影响", size: 616, percentage: 6.3, keywords: ["行业", "影响", "发展", "趋势", "未来"] }
+        ],
+        "垂直平台": [
+            { id: 1, name: "剧情爽点", size: 2876, percentage: 31.2, keywords: ["剧情", "爽点", "反转", "高潮", "结局"] },
+            { id: 2, name: "AI技术应用", size: 2156, percentage: 23.4, keywords: ["AI", "技术", "应用", "生成", "工具"] },
+            { id: 3, name: "内容创新", size: 1687, percentage: 18.3, keywords: ["创新", "创意", "新颖", "独特", "风格"] },
+            { id: 4, name: "用户互动", size: 1345, percentage: 14.6, keywords: ["互动", "评论", "点赞", "分享", "讨论"] },
+            { id: 5, name: "制作水平", size: 1151, percentage: 12.5, keywords: ["制作", "水平", "质量", "效果", "画面"] }
+        ],
+        "短视频平台": [
+            { id: 1, name: "内容喜好", size: 3876, percentage: 31.9, keywords: ["喜欢", "好看", "推荐", "热门", "爆款"] },
+            { id: 2, name: "制作评价", size: 2654, percentage: 21.8, keywords: ["制作", "质量", "水平", "效果", "专业"] },
+            { id: 3, name: "AI技术讨论", size: 2145, percentage: 17.6, keywords: ["AI", "技术", "生成", "人工智能", "算法"] },
+            { id: 4, name: "用户体验", size: 1876, percentage: 15.4, keywords: ["体验", "界面", "操作", "功能", "流畅"] },
+            { id: 5, name: "剧情讨论", size: 1023, percentage: 8.4, keywords: ["剧情", "故事", "情节", "发展", "结局"] },
+            { id: 6, name: "演员表现", size: 387, percentage: 3.2, keywords: ["演员", "表演", "角色", "演技", "形象"] },
+            { id: 7, name: "行业影响", size: 195, percentage: 1.6, keywords: ["行业", "影响", "发展", "趋势", "未来"] }
+        ],
+        "综合视频平台": [
+            { id: 1, name: "内容质量", size: 3245, percentage: 32.1, keywords: ["内容", "质量", "水平", "专业", "制作"] },
+            { id: 2, name: "技术讨论", size: 2187, percentage: 21.6, keywords: ["技术", "AI", "生成", "算法", "人工智能"] },
+            { id: 3, name: "剧情分析", size: 1876, percentage: 18.5, keywords: ["剧情", "故事", "情节", "发展", "分析"] },
+            { id: 4, name: "用户体验", size: 1562, percentage: 15.4, keywords: ["体验", "界面", "操作", "功能", "流畅"] },
+            { id: 5, name: "演员评价", size: 876, percentage: 8.6, keywords: ["演员", "表演", "角色", "演技", "形象"] },
+            { id: 6, name: "行业讨论", size: 377, percentage: 3.7, keywords: ["行业", "发展", "趋势", "未来", "影响"] }
+        ]
+    };
 
-            let sankeyLinks = [
-                {source:'垂直平台',target:'正面情感',value:3337},
-                {source:'垂直平台',target:'中性情感',value:526},
-                {source:'垂直平台',target:'负面情感',value:337},
-                {source:'短视频平台',target:'正面情感',value:5391},
-                {source:'短视频平台',target:'中性情感',value:514},
-                {source:'短视频平台',target:'负面情感',value:407},
-                {source:'社交媒体平台',target:'正面情感',value:8352},
-                {source:'社交媒体平台',target:'中性情感',value:1168},
-                {source:'社交媒体平台',target:'负面情感',value:860},
-                {source:'综合视频平台',target:'正面情感',value:4519},
-                {source:'综合视频平台',target:'中性情感',value:1010},
-                {source:'综合视频平台',target:'负面情感',value:574},
-                {source:'正面情感',target:'好看',value:1830},
-                {source:'正面情感',target:'鼓掌',value:782},
-                {source:'正面情感',target:'偷笑',value:735},
-                {source:'正面情感',target:'送花',value:586},
-                {source:'正面情感',target:'捂脸',value:2527},
-                {source:'正面情感',target:'短剧',value:2147},
-                {source:'正面情感',target:'更新',value:228},
-                {source:'中性情感',target:'AI相关',value:6426},
-                {source:'中性情感',target:'真人演员',value:1795},
-                {source:'负面情感',target:'表情僵硬',value:800},
-                {source:'负面情感',target:'情感缺失',value:550},
-                {source:'负面情感',target:'质量差',value:450},
-                {source:'负面情感',target:'剧情问题',value:378}
-            ];
-            sankey.setOption({
-                backgroundColor:'#0a192f',
-                title: {
-                    text: '桑基图', // 图表主标题
-                    right: '30px', // 标题位置：center/left/right/像素值
-                    top: '20px', // 距离顶部的距离
-                    // 主标题样式（适配你的科技风）
-                    textStyle: {
-                    color: 'rgb(255,255,255)', // 科技蓝（和页面发光色一致）
-                    fontSize: 16,
-                    fontWeight: 'bold',
-                    textShadow: '0 0 10px rgba(0,242,254,0.8)', // 发光效果
-                    fontFamily: 'PingFang SC, Microsoft YaHei'
-                    },
-                },
-                series:[{
-                    type:'sankey',
-                    nodeWidth:16,
-                    label:{color:'#fff'},
-                    emphasis: {
-                        focus: 'adjacency'
-                    },
-                    data: sankeyData,
-                    links: sankeyLinks
-                    
-                }]
+    let clusterPieChart = null;
+
+    let clusterInited = false;
+
+    // 初始化聚类图表
+    function initClusterCharts() {
+        const pieDom = document.getElementById('clusterPieChart');
+        clusterPieChart = echarts.init(pieDom);
+
+
+        renderClusterCharts("社交媒体平台");
+
+        document.querySelectorAll('.cluster-controls .dash-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cluster-controls .dash-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderClusterCharts(btn.dataset.platform);
             });
-            // 记录节点是否展开
-            let expandState = {
-                '正面情感': true,
-                '中性情感': true,
-                '负面情感': true
-            };
+        });
 
-            // 所有二级节点名单
-            const childNodes = ['好看','鼓掌','偷笑','送花','捂脸','短剧','更新','AI相关','真人演员','表情僵硬','情感缺失','质量差','剧情问题'];
+        window.addEventListener('resize', () => {
+            clusterPieChart.resize();
+        });
+    }
 
-            // 点击事件
-            sankey.on('click', function(params) {
-                const name = params.name;
-                // 只对这三个节点生效
-                if (!['正面情感','中性情感','负面情感'].includes(name)) return;
+    // 渲染聚类图表
+    function renderClusterCharts(platform) {
+        const data = clusterData[platform];
+        const colors = ['#00f2fe', '#ff3366', '#bd00ff', '#00ffcc', '#f5a623', '#7bed9f', '#ff6b6b'];
 
-                expandState[name] = !expandState[name];
-                const show = expandState[name];
+        clusterPieChart.setOption({
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'item', formatter: '{b}：{c}%' },
+            legend: { bottom: 0, textStyle: { color: '#fff' } },
+            series: [{
+                type: 'pie', radius: ['30%', '55%'],
+                data: data.map((item, index) => ({
+                    name: item.name, value: item.percentage,
+                    itemStyle: { color: colors[index % colors.length] }
+                })),
+                label: { color: '#fff' },
+                emphasis: { itemStyle: { shadowBlur: 10, shadowColor: '#fff' } }
+            }]
+        });
 
-                // 过滤 links：保留/移除二级节点
-                const newLinks = sankeyLinks.filter(link => {
-                    const s = link.source;
-                    const t = link.target;
-                    // 点击节点 → 只保留/删除它的下级
-                    if (s === name) return show;
-                    // 其他正常保留
-                    return true;
-                });
 
-                // 过滤 data：同步二级节点显示/隐藏
-                const newData = sankeyData.filter(d => {
-                    if (childNodes.includes(d.name)) {
-                        // 二级节点：只在父节点展开时显示
-                        const parent = sankeyLinks.find(l => l.target === d.name)?.source;
-                        return parent && expandState[parent];
+        const tbody = document.getElementById('clusterTableBody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>${item.size.toLocaleString()}</td>
+                <td>${item.keywords.map(k => `<span class="cluster-keyword">${k}</span>`).join('')}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 滚动触发聚类初始化
+    const clusterSection = document.querySelector('.sec-cluster');
+    const clusterObserver = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && !clusterInited) {
+            initClusterCharts();
+            clusterInited = true;
+        }
+    }, { threshold: 0.3 });
+    clusterObserver.observe(clusterSection);
+
+    const topLevelData = [
+        {
+            name: "社交媒体平台",
+            value: clusterData["社交媒体平台"].reduce((a,b)=>a+b.size, 0),
+            children: clusterData["社交媒体平台"].map(item => ({
+                name: item.name,
+                value: item.size,
+                percentage: item.percentage,
+                keywords: item.keywords
+            }))
+        },
+        {
+            name: "垂直平台",
+            value: clusterData["垂直平台"].reduce((a,b)=>a+b.size, 0),
+            children: clusterData["垂直平台"].map(item => ({
+                name: item.name,
+                value: item.size,
+                percentage: item.percentage,
+                keywords: item.keywords
+            }))
+        },
+        {
+            name: "短视频平台",
+            value: clusterData["短视频平台"].reduce((a,b)=>a+b.size, 0),
+            children: clusterData["短视频平台"].map(item => ({
+                name: item.name,
+                value: item.size,
+                percentage: item.percentage,
+                keywords: item.keywords
+            }))
+        },
+        {
+            name: "综合视频平台",
+            value: clusterData["综合视频平台"].reduce((a,b)=>a+b.size, 0),
+            children: clusterData["综合视频平台"].map(item => ({
+                name: item.name,
+                value: item.size,
+                percentage: item.percentage,
+                keywords: item.keywords
+            }))
+        }
+    ];
+
+    const chartDom = document.getElementById('treemapChart');
+    const myChart = echarts.init(chartDom);
+
+    const option = {
+        backgroundColor: "transparent",
+        tooltip: {
+            trigger: "item",
+            formatter: (params) => {
+                const d = params.data;
+                if(d.keywords) return `${d.name}<br/>评论数：${d.value}<br/>占比：${d.percentage}%<br/>关键词：${d.keywords.join('、')}`;
+                return `${d.name}<br/>总评论数：${d.value}`;
+            },
+            textStyle: { color: "#fff" },
+            backgroundColor: "rgba(10,10,26,0.9)",
+            borderColor: "rgba(0,242,254,0.2)",
+            borderWidth:1
+        },
+        series: [{
+            type: "treemap",
+            // 核心：直接显示4大平台（第一级）
+            data: topLevelData,
+            // 无间隙
+            gapWidth: 0,
+            // 分级配色：一级平台（非透明、差异化）、二级关注点（与一级完全区分）
+            aspectRatio: 2,
+            levels: [
+                // 第一级：4大平台（非透明、高辨识度配色）
+                {
+                    color: [
+                        "#00F2FEB3", // 青蓝色（社交媒体平台）
+                        "#FF3366B3", // 玫红色（垂直平台）
+                        "#BD00FFB3", // 紫色（短视频平台）
+                        "#00FFCCB3"  // 青绿色（综合视频平台）
+                    ],
+                    itemStyle: { 
+                        opacity: 1, // 取消透明
+                        borderColor: "rgba(255,255,255,0.2)", 
+                        borderWidth: 2,
+                        borderRadius: 8 // 轻微圆角更美观
                     }
-                    return true;
-                });
+                },
+                // 第二级：关注点（暖色调/低饱和色，与一级冷色调区分）
+                {
+                    color: [
+                        "#F5A623B3", // 橙黄 70%透
+                        "#78788CB3", // 深灰 70%透
+                        "#64B4FFB3", // 浅蓝 70%透
+                        "#B4A0DCB3", // 浅紫 70%透
+                        "#4CD964B3", // 薄荷绿 70%透
+                        "#FF6B6BB3", // 柔粉色 70%透
+                        "#F8D568B3"  // 柠檬黄 70%透
+                    ],
+                    itemStyle: { 
+                        opacity: 1, // 取消透明
+                        borderColor: "rgba(255,255,255,0.15)", 
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                }
+            ],
+            label: {
+                show: true,
+                color: "#fff",
+                fontSize: 14, // 文字放大（一级/二级统一放大，可单独配置）
+                fontWeight: 'bold', // 加粗更醒目
+                textShadow: "0 2px 4px rgba(0,0,0,0.8)", // 增强文字可读性
+                align: 'center', // 水平居中
+                verticalAlign: 'middle' // 垂直居中
+            },
+            upperLabel: { show: false },
+            // 核心交互：点击下钻，返回仅到第一级（4平台）
+            roam: false,
+            nodeClick: "drillDown",
+            drillUpButton: {
+                show: true,
+                position: "center",
+                text: "返回平台总览",
+                textStyle: { color: "#fff", fontSize:14 }
+            },
+            // 锁死层级：只允许 平台→关注点 两级
+            leafDepth: 1
+        }]
+    };
 
-                // 更新图表
-                sankey.setOption({
-                    series: [{
-                        data: newData,
-                        links: newLinks
-                    }]
-                });
-            });
-            window.addEventListener('resize',()=>sankey.resize());
+    myChart.setOption(option);
+    window.addEventListener('resize', () => myChart.resize());
+
             // 负面饼图
             const negChart = echarts.init(document.getElementById('negativePie'));
             negChart.setOption({
@@ -2269,7 +2669,7 @@
             const radar = echarts.init(document.getElementById('radarChart'));
             radar.setOption({
                 title: {
-                    text: '关注点雷达图', // 图表主标题
+                    text: 'AI短剧VS真人短剧关注点雷达图', // 图表主标题
                     left: 'center', // 标题位置：center/left/right/像素值
                     bottom: '10px', // 距离顶部的距离
                     // 主标题样式（适配你的科技风）
@@ -2283,17 +2683,26 @@
                 },
                 backgroundColor:'rgb(10, 10, 26,0.3)',
                 legend:{data:['AI短剧','真人短剧'],textStyle:{color:'#fff'}},
+                tooltip: {
+                    trigger: 'item',
+                    formatter: (params) => {
+                    const indicatorName = params.name; // 当前维度名
+                    const value = params.value;      // 当前维度数值
+                    const seriesName = params.seriesName; // 系列名（AI/真人）
+                    return `${seriesName}<br/>${indicatorName}：${value}`;
+                    }
+                },
                 radar:{
                     indicator:[
-                        {name:'技术特效',max:100},{name:'演员人物',max:100},{name:'剧情内容',max:100},{name:'情感共鸣',max:100},{name:'画面观感',max:100}
+                        {name:'技术特效',max:50},{name:'演员人物',max:50},{name:'剧情内容',max:50},{name:'情感共鸣',max:50},{name:'画面观感',max:50}
                     ],
                     axisName:{color:'#fff'},splitArea:{areaStyle:{color:['rgba(255,255,255,0.02)','rgba(255,255,255,0.05)']}}
                 },
                 series:[{
                     type:'radar',
                     data:[
-                        {value:[84,100,90,70,99],name:'AI短剧',areaStyle:{color:'rgba(0,242,254,0.3)'}},
-                        {value:[16,85,80,87,73],name:'真人短剧',areaStyle:{color:'rgba(255,159,67,0.3)'}}
+                        {value:[5.56,9.25,0.74,34.54,49.91],name:'AI短剧',areaStyle:{color:'rgba(0,242,254,0.3)'}},
+                        {value:[0.12,20.19,0.85,34.08,44.76],name:'真人短剧',areaStyle:{color:'rgba(255,159,67,0.3)'}}
                     ]
                 }]
             });
